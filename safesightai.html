@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Safesight AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
@@ -20,11 +20,14 @@
       justify-content: space-between;
       align-items: center;
     }
-    nav a {
+    nav a, nav button {
       color: white;
       margin-left: 1.5rem;
       text-decoration: none;
       font-weight: 500;
+      background: none;
+      border: none;
+      font: inherit;
       cursor: pointer;
     }
     .hero {
@@ -68,6 +71,33 @@
       padding: 1.5rem;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
+    .process-flow {
+      text-align: center;
+      padding: 4rem 2rem;
+      background-color: #ffffff;
+    }
+    .steps {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .step {
+      flex: 1;
+      min-width: 150px;
+      max-width: 200px;
+      text-align: center;
+    }
+    .step img {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 1rem;
+    }
+    .step-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
     footer {
       background-color: #0a2540;
       color: white;
@@ -85,8 +115,7 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
-      <!-- ✅ Updated logout behavior -->
-      <a onclick="logout()">Logout</a>
+      <button id="logoutBtn">Logout</button>
     </nav>
   </header>
 
@@ -98,11 +127,63 @@
     </a>
   </section>
 
+  <section class="section">
+    <h2>Why Choose Safesight AI?</h2>
+    <div class="features">
+      <div class="feature">
+        <h3>✅ Automated Extraction</h3>
+        <p>Upload any CAR document and we extract structured data instantly.</p>
+      </div>
+      <div class="feature">
+        <h3>✅ Clause Mapping</h3>
+        <p>Automatically align findings to ISO 45001, ILO-OSH, and MS 1722 clauses.</p>
+      </div>
+      <div class="feature">
+        <h3>✅ Real-Time Dashboards</h3>
+        <p>See clause trends, closure timelines, and severity breakdowns at a glance.</p>
+      </div>
+      <div class="feature">
+        <h3>✅ Root Cause Intelligence</h3>
+        <p>Identify systemic failures across sites and audits using AI insights.</p>
+      </div>
+      <div class="feature">
+        <h3>✅ ERP Integration</h3>
+        <p>Seamlessly connect with SharePoint, ERP, and DMS platforms.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="process-flow">
+    <h2>Creating Automated Dashboards from CARs</h2>
+    <div class="steps">
+      <div class="step">
+        <img src="https://img.icons8.com/ios-filled/100/upload.png" alt="Upload Icon">
+        <div class="step-title">Upload CARs</div>
+        <div>PDF, Word, or scanned documents</div>
+      </div>
+      <div class="step">
+        <img src="https://img.icons8.com/ios-filled/100/brain.png" alt="AI Icon">
+        <div class="step-title">AI Extraction</div>
+        <div>LLMs extract & classify data</div>
+      </div>
+      <div class="step">
+        <img src="https://img.icons8.com/ios-filled/100/network.png" alt="Mapping Icon">
+        <div class="step-title">Clause Mapping</div>
+        <div>Mapped to ISO/MS clauses</div>
+      </div>
+      <div class="step">
+        <img src="https://img.icons8.com/ios-filled/100/combo-chart--v1.png" alt="Dashboard Icon">
+        <div class="step-title">Automated Dashboard</div>
+        <div>Visual reports & insights</div>
+      </div>
+    </div>
+  </section>
+
   <footer>
     © 2025 Safesight AI. All rights reserved.
   </footer>
 
-  <!-- ✅ Firebase v10+ CDN Modular -->
+  <!-- ✅ Firebase v10 Modular: Auth Check + Logout -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -120,25 +201,27 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // ✅ Redirect to login if not logged in via Firebase
+    // 🔒 Check auth state
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "login.html";
       }
     });
 
-    // ✅ Firebase logout function
-    window.logout = function () {
-      signOut(auth)
-        .then(() => {
-          localStorage.removeItem("isLoggedIn");
-          localStorage.removeItem("user");
-          window.location.href = "login.html";
-        })
-        .catch((error) => {
-          console.error("Logout failed:", error.message);
+    // 🚪 Ensure DOM is loaded before attaching logout listener
+    window.addEventListener("DOMContentLoaded", () => {
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          signOut(auth).then(() => {
+            window.location.href = "login.html";
+          }).catch((error) => {
+            console.error("Logout failed:", error.message);
+          });
         });
-    };
+      }
+    });
   </script>
 </body>
 </html>
+
