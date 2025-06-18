@@ -38,19 +38,23 @@
       text-align: center;
       margin-bottom: 0.5rem;
     }
+    .success {
+      color: green;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
     .link {
       text-align: center;
     }
   </style>
 
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
 </head>
 <body>
   <div class="box">
     <h2>Login</h2>
+    <div class="success" id="successMsg"></div>
     <form id="loginForm">
       <input type="email" id="username" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
@@ -74,8 +78,13 @@
     };
 
     const app = firebase.initializeApp(firebaseConfig);
-    const analytics = firebase.analytics();
     const auth = firebase.auth();
+
+    // Show success message from signup
+    if (localStorage.getItem("signupSuccess") === "true") {
+      document.getElementById("successMsg").textContent = "User created successfully. Please log in.";
+      localStorage.removeItem("signupSuccess");
+    }
 
     document.getElementById("loginForm").addEventListener("submit", function(e) {
       e.preventDefault();
@@ -83,10 +92,8 @@
       const password = document.getElementById("password").value;
 
       auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          localStorage.setItem("isLoggedIn", "true");
-          localStorage.setItem("user", email);
-          window.location.href = "safesightai.html"; // ✅ Redirect after successful login
+        .then(() => {
+          window.location.href = "safesightai.html";
         })
         .catch((error) => {
           document.getElementById("errorMsg").textContent = error.message;
@@ -95,3 +102,4 @@
   </script>
 </body>
 </html>
+
