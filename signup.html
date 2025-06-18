@@ -42,13 +42,12 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
 </head>
 <body>
   <div class="box">
     <h2>Sign Up</h2>
     <form id="signupForm">
-      <input type="email" id="newUsername" placeholder="Email" required />
+      <input type="text" id="newUsername" placeholder="Username" required />
       <input type="password" id="newPassword" placeholder="Password" required />
       <button type="submit">Sign Up</button>
       <div class="msg" id="msg"></div>
@@ -56,7 +55,7 @@
   </div>
 
   <script>
-    // Firebase config
+    // ✅ Firebase config (you can expand this later if you add Firebase Auth)
     const firebaseConfig = {
       apiKey: "AIzaSyBut_AX8qJedLVxJ1vPq-u_dVSgYdaWLP8",
       authDomain: "safesightai-5f4f4.firebaseapp.com",
@@ -67,25 +66,22 @@
       measurementId: "G-7SYTZ4WEKL"
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
-    const auth = firebase.auth();
 
-    // Sign up handler
+    // ✅ Your original localStorage-based signup logic
     document.getElementById("signupForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const email = document.getElementById("newUsername").value;
-      const password = document.getElementById("newPassword").value;
+      const user = document.getElementById("newUsername").value;
+      const pass = document.getElementById("newPassword").value;
 
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          document.getElementById("msg").textContent = "Account created. Redirecting...";
-          setTimeout(() => window.location.href = "login.html", 1500);
-        })
-        .catch((error) => {
-          document.getElementById("msg").textContent = error.message;
-        });
+      if (localStorage.getItem(user)) {
+        document.getElementById("msg").textContent = "Username already exists.";
+      } else {
+        localStorage.setItem(user, pass);
+        document.getElementById("msg").textContent = "Account created. Redirecting...";
+        setTimeout(() => window.location.href = "login.html", 1500);
+      }
     });
   </script>
 </body>
