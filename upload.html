@@ -134,6 +134,7 @@
     <div id="report"></div>
   </div>
 
+  <!-- ✅ Upload Logic -->
   <script>
     const form = document.getElementById("uploadForm");
     const reportDiv = document.getElementById("report");
@@ -160,6 +161,31 @@
         reportDiv.textContent = data.result || "No result returned.";
       } catch (err) {
         reportDiv.textContent = "Error: " + err.message;
+      }
+    });
+  </script>
+
+  <!-- ✅ Firebase Auth Protection -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBut_AX8qJedLVxJ1vPq-u_dVSgYdaWLP8",
+      authDomain: "safesightai-5f4f4.firebaseapp.com",
+      projectId: "safesightai-5f4f4",
+      storageBucket: "safesightai-5f4f4.firebaseapp.com",
+      messagingSenderId: "843954538362",
+      appId: "1:843954538362:web:de54d2890e439b4e1778c3",
+      measurementId: "G-7SYTZ4WEKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
       }
     });
   </script>
