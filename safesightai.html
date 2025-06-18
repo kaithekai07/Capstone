@@ -25,6 +25,7 @@
       margin-left: 1.5rem;
       text-decoration: none;
       font-weight: 500;
+      cursor: pointer;
     }
     .hero {
       padding: 4rem 2rem;
@@ -54,11 +55,6 @@
       max-width: 1000px;
       margin: 0 auto;
     }
-    .section h2 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 2rem;
-    }
     .features {
       display: flex;
       flex-wrap: wrap;
@@ -80,11 +76,6 @@
       font-size: 0.9rem;
     }
   </style>
-  <script>
-    if (localStorage.getItem("isLoggedIn") !== "true") {
-      window.location.href = "login.html";
-    }
-  </script>
 </head>
 <body>
   <header>
@@ -94,7 +85,8 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
-      <a href="login.html" onclick="logout()">Logout</a>
+      <!-- ✅ Updated logout behavior -->
+      <a onclick="logout()">Logout</a>
     </nav>
   </header>
 
@@ -110,12 +102,43 @@
     © 2025 Safesight AI. All rights reserved.
   </footer>
 
-  <script>
-    function logout() {
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("user");
-      window.location.href = "login.html";
-    }
+  <!-- ✅ Firebase v10+ CDN Modular -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBut_AX8qJedLVxJ1vPq-u_dVSgYdaWLP8",
+      authDomain: "safesightai-5f4f4.firebaseapp.com",
+      projectId: "safesightai-5f4f4",
+      storageBucket: "safesightai-5f4f4.firebaseapp.com",
+      messagingSenderId: "843954538362",
+      appId: "1:843954538362:web:de54d2890e439b4e1778c3",
+      measurementId: "G-7SYTZ4WEKL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // ✅ Redirect to login if not logged in via Firebase
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
+
+    // ✅ Firebase logout function
+    window.logout = function () {
+      signOut(auth)
+        .then(() => {
+          localStorage.removeItem("isLoggedIn");
+          localStorage.removeItem("user");
+          window.location.href = "login.html";
+        })
+        .catch((error) => {
+          console.error("Logout failed:", error.message);
+        });
+    };
   </script>
 </body>
 </html>
