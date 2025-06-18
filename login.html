@@ -63,7 +63,7 @@
     </div>
   </div>
 
-  <!-- ✅ Firebase v10+ Modular Login Script -->
+  <!-- ✅ Firebase Modular Auth -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -81,12 +81,13 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // ✅ Show "User created" message after successful sign-up
+    // ✅ Show success message if redirected from signup
     if (localStorage.getItem("signupSuccess") === "true") {
       document.getElementById("successMsg").textContent = "User created successfully. Please log in.";
       localStorage.removeItem("signupSuccess");
     }
 
+    // ✅ Login form handler
     document.getElementById("loginForm").addEventListener("submit", function (e) {
       e.preventDefault();
       const email = document.getElementById("username").value;
