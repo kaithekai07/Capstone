@@ -97,7 +97,7 @@
         .then(() => {
           localStorage.setItem("isLoggedIn", "true");
           localStorage.setItem("user", email);
-          window.location.href = "safesightai.html";
+          window.location.href = "./safesightai.html"; // ✅ Corrected redirect path
         })
         .catch((error) => {
           document.getElementById("errorMsg").textContent = error.message;
