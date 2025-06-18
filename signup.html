@@ -42,10 +42,7 @@
       color: green;
     }
   </style>
-
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
 </head>
 <body>
@@ -59,7 +56,6 @@
       <div class="msg" id="msg"></div>
     </form>
   </div>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBut_AX8qJedLVxJ1vPq-u_dVSgYdaWLP8",
@@ -71,24 +67,22 @@
       measurementId: "G-7SYTZ4WEKL"
     };
 
-    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
-    const analytics = firebase.analytics();
     const auth = firebase.auth();
 
-    // Handle sign up
-    document.getElementById("signupForm").addEventListener("submit", function (e) {
+    document.getElementById("signupForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const email = document.getElementById("newUsername").value;
       const password = document.getElementById("newPassword").value;
 
       auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
+        .then(() => {
           alert("Email registered successfully!");
           window.location.href = "login.html";
         })
         .catch((error) => {
           document.getElementById("msg").textContent = error.message;
+          console.error("Signup error:", error);
         });
     });
 
@@ -98,3 +92,4 @@
   </script>
 </body>
 </html>
+
