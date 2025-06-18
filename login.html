@@ -20,11 +20,14 @@
       justify-content: space-between;
       align-items: center;
     }
-    nav a {
+    nav a, nav button {
       color: white;
       margin-left: 1.5rem;
       text-decoration: none;
       font-weight: 500;
+      background: none;
+      border: none;
+      font: inherit;
       cursor: pointer;
     }
     .hero {
@@ -112,7 +115,7 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
-      <a href="#" id="logoutLink">Logout</a>
+      <button id="logoutBtn">Logout</button>
     </nav>
   </header>
 
@@ -198,20 +201,19 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // 🔐 Redirect if user is not logged in
+    // 🔒 Block access if not logged in
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "login.html";
       }
     });
 
-    // 🚪 Logout
-    document.getElementById("logoutLink").addEventListener("click", function (e) {
-      e.preventDefault();
+    // 🚪 Logout on click
+    document.getElementById("logoutBtn").addEventListener("click", () => {
       signOut(auth).then(() => {
         window.location.href = "login.html";
       }).catch((error) => {
-        console.error("Logout error:", error);
+        console.error("Logout failed:", error.message);
       });
     });
   </script>
