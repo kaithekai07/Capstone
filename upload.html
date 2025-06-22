@@ -108,20 +108,20 @@
 <body>
   <div class="form-container">
     <h2>Upload CAR</h2>
-    <form id="uploadForm">
+    <form id="uploadForm" method="POST" enctype="multipart/form-data" action="/analyze">
       <label for="car-id">CAR ID</label>
-      <input type="text" id="car-id" name="car-id" placeholder="Enter CAR ID" required />
+      <input type="text" id="car-id" name="carId" placeholder="Enter CAR ID" required />
 
       <label for="car-date">Date</label>
-      <input type="date" id="car-date" name="car-date" required />
+      <input type="date" id="car-date" name="date" required />
 
       <label for="car-desc">Description</label>
-      <textarea id="car-desc" name="car-desc" placeholder="Details of the corrective action..." required></textarea>
+      <textarea id="car-desc" name="description" placeholder="Details of the corrective action..." required></textarea>
 
       <div class="file-upload">
         <div>📄</div>
         <p>Drag and drop a file here or click the button to upload</p>
-        <input type="file" id="car-file" name="car-file" required />
+        <input type="file" id="car-file" name="file" accept=".pdf" required />
       </div>
 
       <div class="button-row">
@@ -131,61 +131,35 @@
       </div>
     </form>
 
-    <div id="report"></div>
+    <div id="report">Waiting for submission...</div>
   </div>
 
-  <!-- ✅ Upload Logic -->
+  <!-- JavaScript to show response -->
   <script>
     const form = document.getElementById("uploadForm");
     const reportDiv = document.getElementById("report");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const formData = new FormData();
-      formData.append("carId", document.getElementById("car-id").value);
-      formData.append("date", document.getElementById("car-date").value);
-      formData.append("description", document.getElementById("car-desc").value);
-      const file = document.getElementById("car-file").files[0];
-      formData.append("file", file);
-
       reportDiv.style.display = "block";
       reportDiv.textContent = "Analyzing with AI... Please wait.";
+
+      const formData = new FormData(form);
 
       try {
         const response = await fetch("/analyze", {
           method: "POST",
           body: formData
         });
-        const data = await response.json();
-        reportDiv.textContent = data.result || "No result returned.";
+
+        const result = await response.json();
+        if (result.result) {
+          reportDiv.textContent = "✅ " + result.result;
+        } else {
+          reportDiv.textContent = "⚠️ Error: " + (result.error || "Unknown issue.");
+        }
       } catch (err) {
-        reportDiv.textContent = "Error: " + err.message;
-      }
-    });
-  </script>
-
-  <!-- ✅ Firebase Auth Protection -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBut_AX8qJedLVxJ1vPq-u_dVSgYdaWLP8",
-      authDomain: "safesightai-5f4f4.firebaseapp.com",
-      projectId: "safesightai-5f4f4",
-      storageBucket: "safesightai-5f4f4.firebaseapp.com",
-      messagingSenderId: "843954538362",
-      appId: "1:843954538362:web:de54d2890e439b4e1778c3",
-      measurementId: "G-7SYTZ4WEKL"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "login.html";
+        reportDiv.textContent = "❌ Network error: " + err.message;
       }
     });
   </script>
