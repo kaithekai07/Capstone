@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -17,8 +17,8 @@
       background: white;
       padding: 2rem;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       width: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     input, button {
       width: 100%;
@@ -33,76 +33,53 @@
       border: none;
       cursor: pointer;
     }
-    .error {
-      color: red;
+    .msg {
       text-align: center;
-      margin-bottom: 0.5rem;
+      color: red;
     }
     .success {
-      color: green;
       text-align: center;
-      margin-bottom: 1rem;
+      color: green;
     }
     .link {
       text-align: center;
     }
   </style>
+
+  <!-- ✅ Supabase Login Script -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabase = createClient(
+      'https://nfcgehfenpjqrijxgzio.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDI5ODEsImV4cCI6MjA2NjMxODk4MX0.HDUeDKvypdrxKeUVdHIgZ63EGYA-axlRgYZMsxL0exw'
+    );
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("loginForm");
+      const errorMsg = document.getElementById("errorMsg");
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          errorMsg.textContent = error.message;
+        } else {
+          window.location.href = "safesightai.html";
+        }
+      });
+    });
+  </script>
 </head>
 <body>
   <div class="box">
     <h2>Login</h2>
-    <div class="success" id="successMsg"></div>
     <form id="loginForm">
-      <input type="email" id="username" placeholder="Email" required />
+      <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
-      <div class="error" id="errorMsg"></div>
-      <button type="submit">Login</button>
-    </form>
-    <div class="link">
-      No account? <a href="signup.html">Sign up</a>
-    </div>
-  </div>
+      <div
 
-  <!-- ✅ Firebase Modular Auth -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBut_AX8qJedLVxJ1vPq-u_dVSgYdaWLP8",
-      authDomain: "safesightai-5f4f4.firebaseapp.com",
-      projectId: "safesightai-5f4f4",
-      storageBucket: "safesightai-5f4f4.firebaseapp.com",
-      messagingSenderId: "843954538362",
-      appId: "1:843954538362:web:de54d2890e439b4e1778c3",
-      measurementId: "G-7SYTZ4WEKL"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    // ✅ Show success message if redirected from signup
-    if (localStorage.getItem("signupSuccess") === "true") {
-      document.getElementById("successMsg").textContent = "User created successfully. Please log in.";
-      localStorage.removeItem("signupSuccess");
-    }
-
-    // ✅ Login form handler
-    document.getElementById("loginForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const email = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
-
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          localStorage.setItem("isLoggedIn", "true");
-          localStorage.setItem("user", email);
-          window.location.href = "./safesightai.html"; // ✅ Corrected redirect path
-        })
-        .catch((error) => {
-          document.getElementById("errorMsg").textContent = error.message;
-        });
-    });
-  </script>
-</body>
-</html>
