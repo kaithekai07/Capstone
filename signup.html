@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sign Up</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -17,8 +17,8 @@
       background: white;
       padding: 2rem;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       width: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     input, button {
       width: 100%;
@@ -28,10 +28,12 @@
       border: 1px solid #ccc;
     }
     button {
-      background: #10b981;
-      color: white;
       border: none;
       cursor: pointer;
+    }
+    .signup-btn {
+      background: #10b981;
+      color: white;
     }
     .back-button {
       background: #ccc;
@@ -42,21 +44,34 @@
       color: red;
     }
   </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Sign Up</h2>
+    <form id="signupForm">
+      <input type="email" id="newUsername" placeholder="Email" required />
+      <input type="password" id="newPassword" placeholder="Password" required />
+      <button type="submit" class="signup-btn">Sign Up</button>
+      <button type="button" class="back-button" id="backButton">Back to Login</button>
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
 
   <!-- ✅ Supabase Signup Script -->
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const supabase = createClient(
       'https://nfcgehfenpjqrijxgzio.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDI5ODEsImV4cCI6MjA2NjMxODk4MX0.HDUeDKvypdrxKeUVdHIgZ63EGYA-axlRgYZMsxL0exw'
     );
 
-    window.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
       const form = document.getElementById("signupForm");
       const msg = document.getElementById("msg");
+      const backBtn = document.getElementById("backButton");
 
-      form.addEventListener("submit", async function (e) {
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const email = document.getElementById("newUsername").value;
@@ -71,23 +86,11 @@
           window.location.href = "login.html";
         }
       });
-    });
 
-    function goBack() {
-      window.location.href = "login.html";
-    }
+      backBtn.addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+    });
   </script>
-</head>
-<body>
-  <div class="box">
-    <h2>Sign Up</h2>
-    <form id="signupForm">
-      <input type="email" id="newUsername" placeholder="Email" required />
-      <input type="password" id="newPassword" placeholder="Password" required />
-      <button type="submit">Sign Up</button>
-      <button type="button" class="back-button" onclick="goBack()">Back to Login</button>
-      <div class="msg" id="msg"></div>
-    </form>
-  </div>
 </body>
 </html>
