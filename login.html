@@ -37,25 +37,35 @@
       text-align: center;
       color: red;
     }
-    .success {
-      text-align: center;
-      color: green;
-    }
     .link {
       text-align: center;
     }
   </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <div class="msg" id="errorMsg"></div>
+      <button type="submit">Login</button>
+    </form>
+    <div class="link">
+      No account? <a href="signup.html">Sign up</a>
+    </div>
+  </div>
 
-  <!-- ✅ Supabase Login Script -->
+  <!-- ✅ Supabase Auth Login -->
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const supabase = createClient(
       'https://nfcgehfenpjqrijxgzio.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDI5ODEsImV4cCI6MjA2NjMxODk4MX0.HDUeDKvypdrxKeUVdHIgZ63EGYA-axlRgYZMsxL0exw'
     );
 
-    window.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById("loginForm");
       const errorMsg = document.getElementById("errorMsg");
 
@@ -74,12 +84,5 @@
       });
     });
   </script>
-</head>
-<body>
-  <div class="box">
-    <h2>Login</h2>
-    <form id="loginForm">
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Password" required />
-      <div
-
+</body>
+</html>
