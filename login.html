@@ -17,19 +17,22 @@
     }
 
     /* 🔹 Blurred Background Image */
-    body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 90%;
-      height: 90%;
-      background-image: url('safesight.jpg'); /* OR use full URL if preferred */
-      background-size: cover;
-      background-position: center;
-      filter: blur(8px);
-      z-index: -1;
-    }
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('safesight.jpg'); /* 👈 Use your image path */
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: auto; /* 👈 Prevents stretching or cropping */
+  filter: blur(8px);     /* 👈 Optional blur effect */
+  opacity: 0.7;          /* 👈 Optional transparency */
+  z-index: -1;
+}
+
 
     .box {
       background: rgba(255, 255, 255, 0.85);
