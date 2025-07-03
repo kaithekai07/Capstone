@@ -16,21 +16,19 @@
       position: relative;
     }
 
-    /* 🔹 Blurred Background Image */
+}
 body::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 600px; /* 🎯 Control size here */
-  height: 400px;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-image: url('SAFESIGHT LOGO.jpeg');
-  background-size: contain;  /* Don’t stretch */
-  background-repeat: no-repeat;
-  background-position: center;
+  background-size: contain;         /* 🟢 Shows entire image without cutting */
+  background-repeat: no-repeat;     /* 🛑 Prevents tiling */
+  background-position: center;      /* 🎯 Centers the image */
   filter: blur(8px);
-  opacity: 0.6; /* Optional: makes it more subtle */
   z-index: -1;
 }
 
