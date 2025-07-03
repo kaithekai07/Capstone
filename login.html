@@ -20,17 +20,20 @@
 body::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 50%;
+  left: 50%;
+  width: 600px; /* 🎯 Control size here */
+  height: 400px;
+  transform: translate(-50%, -50%);
   background-image: url('images/bg.jpg');
-  background-size: contain;         /* 🟢 Shows entire image without cutting */
-  background-repeat: no-repeat;     /* 🛑 Prevents tiling */
-  background-position: center;      /* 🎯 Centers the image */
+  background-size: contain;  /* Don’t stretch */
+  background-repeat: no-repeat;
+  background-position: center;
   filter: blur(8px);
+  opacity: 0.6; /* Optional: makes it more subtle */
   z-index: -1;
 }
+
 
 
     .box {
