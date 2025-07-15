@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Safesight AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400&family=Poppins:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -13,7 +16,7 @@
       color: #333;
     }
     header {
-      background-color: #0a2540;
+      background-color: #050505;
       color: white;
       padding: 1rem 2rem;
       display: flex;
@@ -30,52 +33,111 @@
       font: inherit;
       cursor: pointer;
     }
+
+    .landing-image img {
+  width: 100%;
+  max-height: 465px;
+  object-fit: cover;
+  display: block;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo img {
+  height: 32px;
+  width: auto;
+  display: inline-block;
+}
+
+
     .hero {
-      padding: 4rem 2rem;
+      padding: 2rem 2rem;
       text-align: center;
-      background: linear-gradient(to right, #0a2540, #1d3a6d);
+      background: linear-gradient(to right, #092036, #c4d2ec);
       color: white;
     }
     .hero h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+}
+
+   .hero p {
+     font-family: 'Merriweather', serif;
+     font-size: 1.25rem;
+     font-weight: 400;
+     max-width: 900px;
+     margin: 0 auto 2rem;
+     line-height: 1.6;
     }
-    .hero p {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-    }
+
     .hero button {
       background-color: #00bfa5;
       border: none;
       padding: 0.75rem 1.5rem;
       font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
       border-radius: 6px;
-      color: white;
+      color: white(255, 255, 255);
       cursor: pointer;
+      letter-spacing: 1px;
     }
     .section {
-      padding: 4rem 2rem;
+      padding: 2rem 2rem;
       max-width: 1000px;
       margin: 0 auto;
     }
     .section h2 {
       text-align: center;
       font-size: 2rem;
-      margin-bottom: 2rem;
+      margin-bottom: 4rem;
     }
-    .features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2rem;
-      justify-content: space-around;
-    }
-    .feature {
-      flex: 1 1 250px;
-      background: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
+
+    .features-section {
+  background-color: #092036;
+  padding: 3.5rem 15rem;
+}
+
+.features-section .features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.features-section h2 {
+  color: white;
+}
+
+
+.feature {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 300px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 1rem;
+}
+
     .process-flow {
       text-align: center;
       padding: 4rem 2rem;
@@ -114,11 +176,15 @@
       padding: 2rem;
       font-size: 0.9rem;
     }
+
   </style>
 </head>
 <body>
   <header>
-    <div><strong>Safesight AI</strong></div>
+    <div class="logo">
+      <img src="safesightailogo.jpeg" alt="Safesight AI Logo">
+      <strong>Safesight AI</strong>
+    </div>
     <nav>
       <a href="safesightai.html">Home</a>
       <a href="dashboard.html">Dashboard</a>
@@ -128,39 +194,44 @@
     </nav>
   </header>
 
-  <section class="hero">
-    <h1>Are you drowning in corrective action reports?</h1>
-    <p>Automate, classify, and visualize CARs in real-time with AI-powered QHSE intelligence.</p>
-    <a href="upload.html">
-      <button>Upload</button>
-    </a>
-  </section>
 
-  <section class="section">
-    <h2>Why Choose Safesight AI?</h2>
-    <div class="features">
-      <div class="feature">
-        <h3>✅ Automated Extraction</h3>
-        <p>Upload any CAR document and we extract structured data instantly.</p>
-      </div>
-      <div class="feature">
-        <h3>✅ Clause Mapping</h3>
-        <p>Automatically align findings to ISO 45001, ILO-OSH, and MS 1722 clauses.</p>
-      </div>
-      <div class="feature">
-        <h3>✅ Real-Time Dashboards</h3>
-        <p>See clause trends, closure timelines, and severity breakdowns at a glance.</p>
-      </div>
-      <div class="feature">
-        <h3>✅ Root Cause Intelligence</h3>
-        <p>Identify systemic failures across sites and audits using AI insights.</p>
-      </div>
-      <div class="feature">
-        <h3>✅ ERP Integration</h3>
-        <p>Seamlessly connect with SharePoint, ERP, and DMS platforms.</p>
-      </div>
+<section class="hero">
+  <h1>Are you drowning in corrective action reports?</h1>
+  <p>Automate, classify, and visualize CARs in real-time with AI-powered QHSE intelligence.</p>
+  <a href="upload.html">
+    <button>UPLOAD</button>
+  </a>
+</section>
+
+<section class="landing-image">
+  <img src="landingimage.jpg" alt="AI dashboard overview" />
+</section>
+<section class="section features-section">
+  <h2>Why Choose Safesight AI?</h2>
+  <div class="features">
+    <div class="feature">
+      <img src="https://img.icons8.com/fluency/48/document--v1.png" class="feature-icon" alt="Extraction Icon">
+      <h3>Automated Extraction</h3>
+      <p>Upload any CAR document and we extract structured data instantly.</p>
     </div>
-  </section>
+    <div class="feature">
+      <img src="https://img.icons8.com/fluency/48/workflow.png" class="feature-icon" alt="Mapping Icon">
+      <h3>Clause Mapping</h3>
+      <p>Automatically align findings to ISO 45001.</p>
+    </div>
+    <div class="feature">
+      <img src="https://img.icons8.com/fluency/48/combo-chart--v1.png" class="feature-icon" alt="Dashboard Icon">
+      <h3>Real-Time Dashboards</h3>
+      <p>See clause trends, closure timelines, and severity breakdowns at a glance.</p>
+    </div>
+    <div class="feature">
+      <img src="https://img.icons8.com/fluency/48/artificial-intelligence.png" class="feature-icon" alt="AI Icon">
+      <h3>Root Cause Intelligence</h3>
+      <p>Identify systemic failures across sites and audits using AI insights.</p>
+    </div>
+  </div>
+</section>
+
 
   <section class="process-flow">
     <h2>Creating Automated Dashboards from CARs</h2>
@@ -212,4 +283,5 @@
     }
   </script>
 </body>
+</html>
 </html>
