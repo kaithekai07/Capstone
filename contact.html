@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact - Safesight AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      background-color: #0a0a0a;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo img {
+      height: 32px;
+      width: auto;
+    }
+
+    nav a {
+      color: white;
+      margin-left: 1.5rem;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    /* Contact Section */
+    .contact-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      padding: 3rem 4rem;
+      background-color: #f5f8fb;
+    }
+
+    .contact-info, .contact-form {
+      flex: 1 1 400px;
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .contact-info h2,
+    .contact-form h2 {
+      background-color: #1e2c5e;
+      color: white;
+      font-size: 1.25rem;
+      padding: 1rem;
+      margin: -2rem -2rem 1.5rem;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      text-align: center;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .info-box {
+      background: #f8f9fc;
+      padding: 1rem;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .info-box h4 {
+      color: #1e2c5e;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-row input,
+    textarea,
+    .captcha-row input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      min-height: 100px;
+      margin-bottom: 1rem;
+    }
+
+    .captcha-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .captcha {
+      background: #e1e3e6;
+      padding: 0.75rem 1rem;
+      font-weight: bold;
+      font-size: 1rem;
+      border-radius: 6px;
+      min-width: 70px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .note {
+      font-size: 0.85rem;
+      color: gray;
+      margin-bottom: 1rem;
+    }
+
+    button[type="submit"] {
+      background-color: #1e2c5e;
+      color: white;
+      padding: 0.75rem;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    @media screen and (max-width: 768px) {
+      .form-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="safesightailogo.jpeg" alt="Safesight AI Logo">
+      <strong>Safesight AI</strong>
+    </div>
+    <nav>
+        <a href="safesightai.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="index.html">Logout</a>        
+    </nav>
+  </header>
+
+  <section class="contact-container">
+    <div class="contact-info">
+      <h2>Get In Touch With Us Now!</h2>
+      <div class="info-grid">
+        <div class="info-box">
+          <h4>Phone Number</h4>
+          <p>+6 017 599 0676<br>+6 017 330 1635</p>
+        </div>
+        <div class="info-box">
+          <h4>Email</h4>
+          <p>safesightai05@gmail.com</p>
+        </div>
+        <div class="info-box">
+          <h4>Location</h4>
+          <p>No. 5, Jalan Kolej,<br>Bandar Sunway, 46150 <br> Petaling Jaya Selangor</p>
+        </div>
+        <div class="info-box">
+          <h4>Working Hours</h4>
+          <p>Monday To Friday<br>09:00 AM To 06:00 PM</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form">
+      <h2>Contact Us</h2>
+      <form>
+        <div class="form-row">
+          <input type="text" placeholder="First Name *" required>
+          <input type="text" placeholder="Last Name">
+        </div>
+        <div class="form-row">
+          <input type="text" placeholder="Mobile No *" required>
+          <input type="email" placeholder="Email ID *" required>
+        </div>
+        <textarea placeholder="Message"></textarea>
+        <label>Please type the characters *</label>
+        <div class="captcha-row">
+          <input type="text" placeholder="Enter CAPTCHA" required>
+          <div class="captcha">P S T 5<br></div>
+        </div>
+        <p class="note">This helps us prevent spam, thank you.</p>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </section>
+
+</body>
+</html>
+
