@@ -103,11 +103,28 @@
       padding: 1rem;
       border-radius: 6px;
       display: none;
+      text-align: center;
+      position: relative;
     }
 
     #report a {
       color: #2563eb;
       text-decoration: underline;
+    }
+
+    .spinner {
+      margin: 1rem auto;
+      border: 4px solid #e0e0e0;
+      border-top: 4px solid #2563eb;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -137,17 +154,23 @@
       </div>
     </form>
 
-    <div id="report"></div>
+    <div id="report">
+      <div class="spinner" id="loader"></div>
+      <div id="upload-status">🔄 Uploading and analyzing...</div>
+    </div>
   </div>
 
   <script>
     const form = document.getElementById("uploadForm");
     const reportDiv = document.getElementById("report");
+    const loader = document.getElementById("loader");
+    const status = document.getElementById("upload-status");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       reportDiv.style.display = "block";
-      reportDiv.textContent = "🔄 Uploading and analyzing...";
+      loader.style.display = "block";
+      status.innerText = "🔄 Uploading and analyzing...";
 
       const formData = new FormData(form);
 
@@ -162,18 +185,23 @@
         try {
           const json = JSON.parse(text);
           if (json.download_url) {
-            reportDiv.innerHTML = `✅ Success! <a href="${json.download_url}" target="_blank">Download Excel</a>`;
+            loader.style.display = "none";
+            status.innerHTML = `✅ Success! <a href="${json.download_url}" target="_blank">Download Excel</a>`;
           } else {
-            reportDiv.textContent = "❌ " + (json.error || "Unknown server error.");
+            loader.style.display = "none";
+            status.textContent = "❌ " + (json.error || "Unknown server error.");
           }
         } catch {
-          reportDiv.textContent = "⚠️ Unexpected response:\n" + text;
+          loader.style.display = "none";
+          status.textContent = "⚠️ Unexpected response:\n" + text;
         }
 
       } catch (err) {
-        reportDiv.textContent = "❌ Network error: " + err.message;
+        loader.style.display = "none";
+        status.textContent = "❌ Network error: " + err.message;
       }
     });
   </script>
 </body>
 </html>
+
