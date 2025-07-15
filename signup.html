@@ -11,15 +11,39 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: #f5f5f5;
+      overflow: hidden;
+      position: relative;
+      margin: 0;
     }
+
+    /* 🔹 Blurred Background Image */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('safesight.jpg'); /* 👈 Use your image path */
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: auto; /* 👈 Prevents stretching or cropping */
+      filter: blur(8px);     /* 👈 Optional blur effect */
+      opacity: 0.7;          /* 👈 Optional transparency */
+      z-index: -1;
+    }
+
     .box {
-      background: white;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
       padding: 2rem;
       border-radius: 10px;
       width: 300px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      z-index: 1;
     }
+
     input, button {
       width: 100%;
       padding: 0.75rem;
@@ -27,18 +51,22 @@
       border-radius: 5px;
       border: 1px solid #ccc;
     }
+
     button {
       border: none;
       cursor: pointer;
     }
+
     .signup-btn {
       background: #10b981;
       color: white;
     }
+
     .back-button {
       background: #ccc;
       color: #333;
     }
+
     .msg {
       text-align: center;
       color: red;
