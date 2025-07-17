@@ -4,55 +4,120 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard | Safesight AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
     body {
       font-family: 'Inter', sans-serif;
       background-color: #f5f7fa;
       margin: 0;
-      padding: 2rem;
+      padding: 1rem;
+      color: #333;
     }
+
     h1 {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.75rem;
     }
+
+    .controls {
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+
+    .controls input, .controls button {
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .controls input {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      background: white;
+      border-radius: 8px;
+      max-width: 100%;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      min-width: 700px;
     }
+
     th, td {
       border: 1px solid #ddd;
       padding: 0.75rem;
       text-align: left;
+      font-size: 0.95rem;
     }
+
     th {
       background-color: #092036;
       color: white;
+      font-weight: 600;
     }
+
     td[contenteditable="true"] {
       background-color: #f0f9ff;
       cursor: text;
     }
+
     td:focus {
       outline: 2px solid #00bfa5;
+    }
+
+    .delete-btn {
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
+      background: none;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      th, td {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Corrective Action Reports Dashboard</h1>
-  <table id="data-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Clause</th>
-        <th>Severity</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <h1>CAR Dashboard</h1>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="🔍 Search title or description..." />
+    <button id="add-row">➕ Add New Row</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Clause</th>
+          <th>Severity</th>
+          <th>🗑️</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -62,21 +127,28 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDc0Mjk4MSwiZXhwIjoyMDY2MzE4OTgxfQ.B__RkNBjBlRn9QC7L72lL2wZKO7O3Yy2iM-Da1cllpc'
     );
 
-    const tableName = 'car_reports'; // Change to your actual table name
+    const tableName = 'car_reports'; // <-- Adjust your table name
     const tableBody = document.querySelector("#data-table tbody");
+    const searchInput = document.getElementById("search");
+    const addRowBtn = document.getElementById("add-row");
+
+    let allRows = [];
 
     async function fetchData() {
       const { data, error } = await supabase.from(tableName).select("*");
-      if (error) {
-        console.error("Error fetching data:", error);
-        return;
-      }
+      if (error) return console.error("Fetch error:", error);
 
-      data.forEach(row => {
+      allRows = data;
+      renderRows(allRows);
+    }
+
+    function renderRows(rows) {
+      tableBody.innerHTML = "";
+      rows.forEach(row => {
         const tr = document.createElement("tr");
         for (const key of ['id', 'title', 'description', 'clause', 'severity']) {
           const td = document.createElement("td");
-          td.textContent = row[key];
+          td.textContent = row[key] ?? "";
           if (key !== 'id') {
             td.contentEditable = "true";
             td.dataset.field = key;
@@ -91,6 +163,16 @@
           }
           tr.appendChild(td);
         }
+
+        // Delete Button
+        const delTd = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.textContent = "🗑️";
+        btn.className = "delete-btn";
+        btn.onclick = () => deleteRow(row.id);
+        delTd.appendChild(btn);
+        tr.appendChild(delTd);
+
         tableBody.appendChild(tr);
       });
     }
@@ -107,12 +189,46 @@
         .eq('id', id);
 
       if (error) {
-        console.error(`Error updating ${field} of ID ${id}:`, error);
-        alert("Update failed.");
-      } else {
-        console.log(`Updated ${field} of ID ${id} to "${value}"`);
+        console.error("Update error:", error);
+        alert("Update failed");
       }
     }
+
+    async function deleteRow(id) {
+      if (!confirm("Delete this row?")) return;
+
+      const { error } = await supabase.from(tableName).delete().eq("id", id);
+      if (error) return alert("Failed to delete row");
+
+      allRows = allRows.filter(row => row.id !== id);
+      renderRows(allRows);
+    }
+
+    addRowBtn.addEventListener("click", async () => {
+      const { data, error } = await supabase.from(tableName).insert({
+        title: "New Title",
+        description: "New Description",
+        clause: "0000",
+        severity: "Low"
+      }).select();
+
+      if (error) {
+        console.error("Insert error:", error);
+        return alert("Insert failed");
+      }
+
+      allRows.push(data[0]);
+      renderRows(allRows);
+    });
+
+    searchInput.addEventListener("input", () => {
+      const term = searchInput.value.toLowerCase();
+      const filtered = allRows.filter(row =>
+        row.title?.toLowerCase().includes(term) ||
+        row.description?.toLowerCase().includes(term)
+      );
+      renderRows(filtered);
+    });
 
     fetchData();
   </script>
