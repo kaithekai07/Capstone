@@ -61,7 +61,7 @@
       padding: 0 1rem;
     }
 
-    .controls input, .controls select, .controls button {
+    .controls input, .controls button {
       padding: 0.6rem;
       font-size: 0.95rem;
       border-radius: 4px;
@@ -153,10 +153,7 @@
   <h1>CAR Dashboard</h1>
 
   <div class="controls">
-    <input type="text" id="search" placeholder="🔍 Search title or description..." />
-    <select id="clause-filter">
-      <option value="">🔍 Filter by Clause</option>
-    </select>
+    <input type="text" id="search" placeholder="🔍 Search description or filename..." />
     <input type="date" id="start-date" />
     <input type="date" id="end-date" />
     <button id="add-row">➕ Add New Row</button>
@@ -166,11 +163,11 @@
     <table id="data-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Title</th>
+          <th>CAR ID</th>
           <th>Description</th>
-          <th>Clause</th>
-          <th>Severity</th>
+          <th>Date</th>
+          <th>Filename</th>
+          <th>File URL</th>
           <th>🗑️</th>
         </tr>
       </thead>
@@ -187,13 +184,12 @@
 
     const supabase = createClient(
       'https://nfcgehfenpjqrijxgzio.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDI5ODEsImV4cCI6MjA2NjMxODk4MX0.HDUeDKvypdrxKeUVdHIgZ63EGYA-axlRgYZMsxL0exw'
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDc0Mjk4MSwiZXhwIjoyMDY2MzE4OTgxfQ.B__RkNBjBlRn9QC7L72lL2wZKO7O3Yy2iM-Da1cllpc'
     );
 
-    const tableName = 'car_reports'; // Update to your table name
+    const tableName = 'car_reports';
     const tableBody = document.querySelector("#data-table tbody");
     const searchInput = document.getElementById("search");
-    const clauseFilter = document.getElementById("clause-filter");
     const startDateInput = document.getElementById("start-date");
     const endDateInput = document.getElementById("end-date");
     const addRowBtn = document.getElementById("add-row");
@@ -205,27 +201,22 @@
       if (error) return console.error("Fetch error:", error);
 
       allRows = data;
-      renderClauseOptions(data);
-      renderRows(allRows);
-    }
-
-    function renderClauseOptions(data) {
-      const uniqueClauses = [...new Set(data.map(row => row.clause).filter(Boolean))];
-      clauseFilter.innerHTML = `<option value="">🔍 Filter by Clause</option>` +
-        uniqueClauses.map(clause => `<option value="${clause}">${clause}</option>`).join('');
+      applyFilters();
     }
 
     function renderRows(rows) {
       tableBody.innerHTML = "";
       rows.forEach(row => {
         const tr = document.createElement("tr");
-        for (const key of ['id', 'title', 'description', 'clause', 'severity']) {
+
+        const keys = ['car_id', 'description', 'date', 'filename', 'file_url'];
+        keys.forEach(key => {
           const td = document.createElement("td");
           td.textContent = row[key] ?? "";
-          if (key !== 'id') {
+          if (key !== 'car_id') {
             td.contentEditable = "true";
             td.dataset.field = key;
-            td.dataset.id = row.id;
+            td.dataset.id = row.car_id;
             td.addEventListener("blur", updateField);
             td.addEventListener("keydown", (e) => {
               if (e.key === "Enter") {
@@ -235,13 +226,13 @@
             });
           }
           tr.appendChild(td);
-        }
+        });
 
         const delTd = document.createElement("td");
         const btn = document.createElement("button");
         btn.textContent = "🗑️";
         btn.className = "delete-btn";
-        btn.onclick = () => deleteRow(row.id);
+        btn.onclick = () => deleteRow(row.car_id);
         delTd.appendChild(btn);
         tr.appendChild(delTd);
 
@@ -258,7 +249,7 @@
       const { error } = await supabase
         .from(tableName)
         .update({ [field]: value })
-        .eq('id', id);
+        .eq('car_id', id);
 
       if (error) {
         console.error("Update error:", error);
@@ -268,9 +259,9 @@
 
     async function deleteRow(id) {
       if (!confirm("Delete this row?")) return;
-      const { error } = await supabase.from(tableName).delete().eq("id", id);
+      const { error } = await supabase.from(tableName).delete().eq("car_id", id);
       if (!error) {
-        allRows = allRows.filter(row => row.id !== id);
+        allRows = allRows.filter(row => row.car_id !== id);
         applyFilters();
       } else {
         alert("Failed to delete row");
@@ -279,10 +270,11 @@
 
     addRowBtn.addEventListener("click", async () => {
       const { data, error } = await supabase.from(tableName).insert({
-        title: "New Title",
-        description: "New Description",
-        clause: "0.0",
-        severity: "Low"
+        description: "New description",
+        date: "2025-01-01",
+        filename: "example.pdf",
+        file_url: "https://example.com",
+        submitted_at: new Date().toISOString()
       }).select();
 
       if (!error) {
@@ -295,27 +287,25 @@
 
     function applyFilters() {
       const term = searchInput.value.toLowerCase();
-      const selectedClause = clauseFilter.value;
       const startDate = startDateInput.value;
       const endDate = endDateInput.value;
 
       const filtered = allRows.filter(row => {
-        const matchesSearch = (
-          row.title?.toLowerCase().includes(term) ||
-          row.description?.toLowerCase().includes(term)
-        );
-        const matchesClause = selectedClause ? row.clause === selectedClause : true;
-        const rowDate = row.created_at ? new Date(row.created_at) : null;
+        const matchesSearch =
+          row.description?.toLowerCase().includes(term) ||
+          row.filename?.toLowerCase().includes(term);
+
+        const rowDate = row.submitted_at ? new Date(row.submitted_at) : null;
         const matchesDate = (!startDate || (rowDate && rowDate >= new Date(startDate))) &&
                             (!endDate || (rowDate && rowDate <= new Date(endDate)));
-        return matchesSearch && matchesClause && matchesDate;
+
+        return matchesSearch && matchesDate;
       });
 
       renderRows(filtered);
     }
 
     searchInput.addEventListener("input", applyFilters);
-    clauseFilter.addEventListener("change", applyFilters);
     startDateInput.addEventListener("change", applyFilters);
     endDateInput.addEventListener("change", applyFilters);
 
@@ -328,4 +318,3 @@
   </script>
 </body>
 </html>
-
