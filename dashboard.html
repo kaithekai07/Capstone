@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard | Safesight AI</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    th {
+      background-color: #092036;
+      color: white;
+    }
+    td[contenteditable="true"] {
+      background-color: #f0f9ff;
+      cursor: text;
+    }
+    td:focus {
+      outline: 2px solid #00bfa5;
+    }
+  </style>
+</head>
+<body>
+  <h1>Corrective Action Reports Dashboard</h1>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Clause</th>
+        <th>Severity</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabase = createClient(
+      'https://nfcgehfenpjqrijxgzio.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDc0Mjk4MSwiZXhwIjoyMDY2MzE4OTgxfQ.B__RkNBjBlRn9QC7L72lL2wZKO7O3Yy2iM-Da1cllpc'
+    );
+
+    const tableName = 'car_reports'; // Change to your actual table name
+    const tableBody = document.querySelector("#data-table tbody");
+
+    async function fetchData() {
+      const { data, error } = await supabase.from(tableName).select("*");
+      if (error) {
+        console.error("Error fetching data:", error);
+        return;
+      }
+
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        for (const key of ['id', 'title', 'description', 'clause', 'severity']) {
+          const td = document.createElement("td");
+          td.textContent = row[key];
+          if (key !== 'id') {
+            td.contentEditable = "true";
+            td.dataset.field = key;
+            td.dataset.id = row.id;
+            td.addEventListener("blur", updateField);
+            td.addEventListener("keydown", (e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                td.blur();
+              }
+            });
+          }
+          tr.appendChild(td);
+        }
+        tableBody.appendChild(tr);
+      });
+    }
+
+    async function updateField(e) {
+      const td = e.target;
+      const field = td.dataset.field;
+      const id = td.dataset.id;
+      const value = td.textContent;
+
+      const { error } = await supabase
+        .from(tableName)
+        .update({ [field]: value })
+        .eq('id', id);
+
+      if (error) {
+        console.error(`Error updating ${field} of ID ${id}:`, error);
+        alert("Update failed.");
+      } else {
+        console.log(`Updated ${field} of ID ${id} to "${value}"`);
+      }
+    }
+
+    fetchData();
+  </script>
+</body>
+</html>
