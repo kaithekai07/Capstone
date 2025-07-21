@@ -209,6 +209,7 @@
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 
     const supabase = createClient(
       'https://nfcgehfenpjqrijxgzio.supabase.co',
@@ -297,7 +298,9 @@
     }
 
     addRowBtn.addEventListener("click", async () => {
+      const newId = uuidv4();
       const { data, error } = await supabase.from(tableName).insert({
+        car_id: newId,
         description: "New description",
         date: "2025-01-01",
         filename: "example.pdf",
@@ -310,6 +313,7 @@
         applyFilters();
       } else {
         alert("Insert failed");
+        console.error("Insert error:", error);
       }
     });
 
