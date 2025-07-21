@@ -208,73 +208,104 @@
   </footer>
 
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-    import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 
-    const supabase = createClient(
-      'https://nfcgehfenpjqrijxgzio.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDc0Mjk4MSwiZXhwIjoyMDY2MzE4OTgxfQ.B__RkNBjBlRn9QC7L72lL2wZKO7O3Yy2iM-Da1cllpc'
-    );
+  const supabase = createClient(
+    'https://nfcgehfenpjqrijxgzio.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDc0Mjk4MSwiZXhwIjoyMDY2MzE4OTgxfQ.B__RkNBjBlRn9QC7L72lL2wZKO7O3Yy2iM-Da1cllpc'
+  );
 
-    const tableName = 'car_reports';
-    const tableBody = document.querySelector("#data-table tbody");
-    const searchInput = document.getElementById("search");
-    const startDateInput = document.getElementById("start-date");
-    const endDateInput = document.getElementById("end-date");
-    const addRowBtn = document.getElementById("add-row");
+  const tableName = 'car_reports';
+  const tableBody = document.querySelector("#data-table tbody");
+  const searchInput = document.getElementById("search");
+  const startDateInput = document.getElementById("start-date");
+  const endDateInput = document.getElementById("end-date");
+  const addRowBtn = document.getElementById("add-row");
 
-    let allRows = [];
+  let allRows = [];
 
-    async function fetchData() {
-      const { data, error } = await supabase.from(tableName).select("*");
-      if (error) return console.error("Fetch error:", error);
+  async function fetchData() {
+    const { data, error } = await supabase.from(tableName).select("*");
+    if (error) return console.error("Fetch error:", error);
 
-      allRows = data;
-      applyFilters();
-    }
+    allRows = data;
+    applyFilters();
+  }
 
-    function renderRows(rows) {
-      tableBody.innerHTML = "";
-      rows.forEach(row => {
-        const tr = document.createElement("tr");
+  function renderRows(rows) {
+    tableBody.innerHTML = "";
+    rows.forEach(row => addRowToDOM(row));
+  }
 
-        const keys = ['car_id', 'description', 'date', 'filename', 'file_url'];
-        keys.forEach(key => {
-          const td = document.createElement("td");
-          td.textContent = row[key] ?? "";
-          if (key !== 'car_id') {
-            td.contentEditable = "true";
-            td.dataset.field = key;
-            td.dataset.id = row.car_id;
-            td.addEventListener("blur", updateField);
-            td.addEventListener("keydown", (e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                td.blur();
-              }
-            });
+  function addRowToDOM(row, isNew = false) {
+    const tr = document.createElement("tr");
+    const keys = ['car_id', 'description', 'date', 'filename', 'file_url'];
+
+    keys.forEach(key => {
+      const td = document.createElement("td");
+      td.textContent = row[key] ?? "";
+      if (key !== 'car_id') {
+        td.contentEditable = "true";
+        td.dataset.field = key;
+        td.dataset.id = row.car_id;
+        td.dataset.isNew = isNew;
+        td.addEventListener("blur", updateField);
+        td.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            td.blur();
           }
-          tr.appendChild(td);
         });
+      }
+      tr.appendChild(td);
+    });
 
-        const delTd = document.createElement("td");
-        const btn = document.createElement("button");
-        btn.textContent = "🗑️";
-        btn.className = "delete-btn";
-        btn.onclick = () => deleteRow(row.car_id);
-        delTd.appendChild(btn);
-        tr.appendChild(delTd);
+    const delTd = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.textContent = "🗑️";
+    btn.className = "delete-btn";
+    btn.onclick = () => deleteRow(row.car_id);
+    delTd.appendChild(btn);
+    tr.appendChild(delTd);
 
-        tableBody.appendChild(tr);
-      });
-    }
+    tableBody.appendChild(tr);
+  }
 
-    async function updateField(e) {
-      const td = e.target;
-      const field = td.dataset.field;
-      const id = td.dataset.id;
-      const value = td.textContent;
+  async function updateField(e) {
+    const td = e.target;
+    const field = td.dataset.field;
+    const id = td.dataset.id;
+    const value = td.textContent;
+    const isNew = td.dataset.isNew === "true";
 
+    const row = Array.from(td.parentElement.children).reduce((acc, cell) => {
+      if (cell.dataset.field) {
+        acc[cell.dataset.field] = cell.textContent.trim();
+      }
+      return acc;
+    }, {});
+
+    if (isNew) {
+      // Insert into Supabase
+      const insertData = {
+        car_id: id,
+        ...row,
+        submitted_at: new Date().toISOString()
+      };
+      const { error } = await supabase.from(tableName).insert(insertData);
+      if (!error) {
+        td.dataset.isNew = "false";
+        const rowIndex = allRows.findIndex(r => r.car_id === id);
+        if (rowIndex === -1) {
+          allRows.push(insertData);
+        }
+      } else {
+        alert("Insert failed");
+        console.error(error);
+      }
+    } else {
+      // Update Supabase
       const { error } = await supabase
         .from(tableName)
         .update({ [field]: value })
@@ -285,68 +316,61 @@
         alert("Update failed");
       }
     }
+  }
 
-    async function deleteRow(id) {
-      if (!confirm("Delete this row?")) return;
-      const { error } = await supabase.from(tableName).delete().eq("car_id", id);
-      if (!error) {
-        allRows = allRows.filter(row => row.car_id !== id);
-        applyFilters();
-      } else {
-        alert("Failed to delete row");
-      }
+  async function deleteRow(id) {
+    if (!confirm("Delete this row?")) return;
+    const { error } = await supabase.from(tableName).delete().eq("car_id", id);
+    if (!error) {
+      allRows = allRows.filter(row => row.car_id !== id);
+      applyFilters();
+    } else {
+      alert("Failed to delete row");
     }
+  }
 
-    addRowBtn.addEventListener("click", async () => {
-      const newId = uuidv4();
-      const { data, error } = await supabase.from(tableName).insert({
-        car_id: newId,
-        description: "New description",
-        date: "2025-01-01",
-        filename: "example.pdf",
-        file_url: "https://example.com",
-        submitted_at: new Date().toISOString()
-      }).select();
+  addRowBtn.addEventListener("click", () => {
+    const newId = uuidv4();
+    const newRow = {
+      car_id: newId,
+      description: "",
+      date: "",
+      filename: "",
+      file_url: ""
+    };
+    addRowToDOM(newRow, true);
+  });
 
-      if (!error) {
-        allRows.push(data[0]);
-        applyFilters();
-      } else {
-        alert("Insert failed");
-        console.error("Insert error:", error);
-      }
+  function applyFilters() {
+    const term = searchInput.value.toLowerCase();
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+
+    const filtered = allRows.filter(row => {
+      const matchesSearch =
+        row.description?.toLowerCase().includes(term) ||
+        row.filename?.toLowerCase().includes(term);
+
+      const rowDate = row.submitted_at ? new Date(row.submitted_at) : null;
+      const matchesDate = (!startDate || (rowDate && rowDate >= new Date(startDate))) &&
+                          (!endDate || (rowDate && rowDate <= new Date(endDate)));
+
+      return matchesSearch && matchesDate;
     });
 
-    function applyFilters() {
-      const term = searchInput.value.toLowerCase();
-      const startDate = startDateInput.value;
-      const endDate = endDateInput.value;
+    renderRows(filtered);
+  }
 
-      const filtered = allRows.filter(row => {
-        const matchesSearch =
-          row.description?.toLowerCase().includes(term) ||
-          row.filename?.toLowerCase().includes(term);
+  searchInput.addEventListener("input", applyFilters);
+  startDateInput.addEventListener("change", applyFilters);
+  endDateInput.addEventListener("change", applyFilters);
 
-        const rowDate = row.submitted_at ? new Date(row.submitted_at) : null;
-        const matchesDate = (!startDate || (rowDate && rowDate >= new Date(startDate))) &&
-                            (!endDate || (rowDate && rowDate <= new Date(endDate)));
+  fetchData();
 
-        return matchesSearch && matchesDate;
-      });
-
-      renderRows(filtered);
-    }
-
-    searchInput.addEventListener("input", applyFilters);
-    startDateInput.addEventListener("change", applyFilters);
-    endDateInput.addEventListener("change", applyFilters);
-
-    fetchData();
-
-    window.logout = async function () {
-      await supabase.auth.signOut();
-      window.location.href = "index.html";
-    }
-  </script>
+  window.logout = async function () {
+    await supabase.auth.signOut();
+    window.location.href = "index.html";
+  }
+</script>
 </body>
 </html>
