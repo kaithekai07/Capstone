@@ -33,20 +33,22 @@
       width: auto;
     }
 
-    nav a, nav button {
-      color: white;
-      margin-left: 1.5rem;
-      text-decoration: none;
-      font-weight: 500;
-      background: none;
-      border: none;
-      font: inherit;
-      cursor: pointer;
-    }
-    
-    tr:hover {
-  background-color: #e6f7ff;
+nav a, nav button {
+  color: white;
+  margin-left: 1.5rem;
+  text-decoration: none;
+  font-weight: 500;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.3s ease;
 }
+
+nav a:hover, nav button:hover {
+  color: #00c6ff; /* 🔹 THIS is the hover highlight color */
+}
+
 
     .hero {
       background: linear-gradient(to right, #092036, #c4d2ec);
