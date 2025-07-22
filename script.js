@@ -36,3 +36,75 @@ function handleUpload(event) {
       setTimeout(() => loader.style.display = "none", 3000);
     });
 }
+
+let extractedData = {};
+
+function createEditableSection(sectionName, records) {
+  const container = document.createElement("div");
+  container.className = "section";
+  container.innerHTML = `<h3>${sectionName}</h3>`;
+
+  records.forEach((record, idx) => {
+    const recordDiv = document.createElement("div");
+    recordDiv.className = "record";
+
+    Object.entries(record).forEach(([key, value]) => {
+      const input = document.createElement("input");
+      input.value = value;
+      input.oninput = (e) => {
+        extractedData[sectionName][idx][key] = e.target.value;
+      };
+      const label = document.createElement("label");
+      label.textContent = key;
+      recordDiv.appendChild(label);
+      recordDiv.appendChild(input);
+    });
+
+    container.appendChild(recordDiv);
+  });
+
+  return container;
+}
+
+async function uploadAndExtract() {
+  const fileInput = document.getElementById("fileInput");
+  const file = fileInput.files[0];
+  if (!file) return alert("Please select a file");
+
+  const formData = new FormData();
+  const carId = "CAR-" + Date.now();
+  formData.append("file", file);
+  formData.append("carId", carId);
+
+  const res = await fetch("https://your-backend-url.com/analyze", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await res.json();
+  if (data.error) return alert("❌ Extraction failed");
+
+  extractedData = data.data;
+
+  const container = document.getElementById("reviewContainer");
+  container.innerHTML = "";
+
+  Object.entries(extractedData).forEach(([section, records]) => {
+    const sectionEl = createEditableSection(section, records);
+    container.appendChild(sectionEl);
+  });
+
+  document.getElementById("submitBtn").style.display = "block";
+}
+
+async function submitToSupabase() {
+  const res = await fetch("https://your-backend-url.com/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(extractedData),
+  });
+
+  const result = await res.json();
+  if (result.error) return alert("Submission failed");
+  alert("✅ Submitted to Supabase!");
+}
