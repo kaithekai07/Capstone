@@ -6,10 +6,13 @@ export default function ExtractReview() {
   const [section, setSection] = useState("Section_A");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [carId, setCarId] = useState("");
 
   useEffect(() => {
-    const raw = localStorage.getItem("extractedData");
+    const raw = localStorage.getItem("car_data");
+    const id = localStorage.getItem("car_id");
     if (raw) setData(JSON.parse(raw));
+    if (id) setCarId(id);
   }, []);
 
   const handleChange = (sec, idx, key, val) => {
@@ -22,12 +25,12 @@ export default function ExtractReview() {
     setLoading(true);
     setStatus("Submitting...");
     try {
-      const res = await fetch("https://your-backend-url/submit", {
+      const response = await fetch("https://capstone-backend-128c.onrender.com/submit-review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        body: JSON.stringify({ car_id: carId, data })
       });
-      const result = await res.json();
+      const result = await response.json();
       setStatus(result.result || result.error || "Submitted.");
     } catch (err) {
       setStatus("❌ " + err.message);
@@ -62,7 +65,7 @@ export default function ExtractReview() {
           ✅ Submit to Supabase
         </button>
         {loading && <p>Submitting...</p>}
-        {status && <p>{status}</p>}
+        {status && <p className="status-text">{status}</p>}
       </aside>
 
       <main className="section-content">
@@ -84,9 +87,8 @@ export default function ExtractReview() {
     </div>
   );
 }
-"""
 
-css_code = """
+
 .review-container {
   display: flex;
   font-family: Arial, sans-serif;
@@ -154,4 +156,10 @@ css_code = """
   padding: 0.5rem;
   border: 1px solid #d1d5db;
   border-radius: 4px;
+}
+
+.status-text {
+  margin-top: 1rem;
+  font-weight: bold;
+  color: #1e293b;
 }
