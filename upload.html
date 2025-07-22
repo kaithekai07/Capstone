@@ -160,51 +160,51 @@
     </div>
   </div>
 
-  <script>
-  const form = document.getElementById("uploadForm");
-  const reportDiv = document.getElementById("report");
-  const loader = document.getElementById("loader");
-  const status = document.getElementById("upload-status");
+<script>
+    const form = document.getElementById("uploadForm");
+    const reportDiv = document.getElementById("report");
+    const loader = document.getElementById("loader");
+    const status = document.getElementById("upload-status");
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    reportDiv.style.display = "block";
-    loader.style.display = "block";
-    status.innerText = "🔄 Uploading and extracting PDF...";
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      reportDiv.style.display = "block";
+      loader.style.display = "block";
+      status.innerText = "🔄 Uploading and extracting PDF...";
 
-    const formData = new FormData(form);
+      const formData = new FormData(form);
 
-    try {
-      const response = await fetch("https://capstone-backend-128c.onrender.com/analyze", {
-        method: "POST",
-        body: formData
-      });
+      try {
+        const response = await fetch("https://capstone-backend-128c.onrender.com/analyze", {
+          method: "POST",
+          body: formData
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (result.data) {
+        if (result.data) {
+          loader.style.display = "none";
+          status.innerText = "✅ Extraction complete. Redirecting...";
+
+          // Store extracted data + CAR ID in localStorage
+          localStorage.setItem("car_data", JSON.stringify(result.data));
+          localStorage.setItem("car_id", formData.get("carId"));
+
+          // Redirect to React CRUD review interface
+          setTimeout(() => {
+            window.location.href = "/extract-review"; // 👈 matches your React route
+          }, 1500);
+        } else {
+          loader.style.display = "none";
+          status.textContent = "❌ " + (result.error || "Unknown server error.");
+        }
+
+      } catch (err) {
         loader.style.display = "none";
-        status.innerText = "✅ Extraction complete. Redirecting...";
-
-        // Save extracted data temporarily
-        localStorage.setItem("car_data", JSON.stringify(result.data));
-        localStorage.setItem("car_id", formData.get("carId"));
-
-        // Redirect to review page
-        setTimeout(() => {
-          window.location.href = "dataentry.html";
-        }, 1500);
-      } else {
-        loader.style.display = "none";
-        status.textContent = "❌ " + (result.error || "Unknown server error.");
+        status.textContent = "❌ Network error: " + err.message;
       }
-
-    } catch (err) {
-      loader.style.display = "none";
-      status.textContent = "❌ Network error: " + err.message;
-    }
-  });
-</script>
+    });
+  </script>
 </body>
 </html>
 
