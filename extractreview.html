@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Review Extracted Data</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+    .section h3 { margin-top: 0; }
+    .record { margin-bottom: 10px; }
+    .record input, textarea { width: 100%; padding: 6px; margin-top: 5px; }
+    .btn { padding: 10px 15px; background: steelblue; color: white; border: none; border-radius: 3px; cursor: pointer; }
+    .btn:disabled { background: #ccc; }
+  </style>
+</head>
+<body>
+  <h1>📄 Review Extracted CAR Data</h1>
+  <input type="file" id="fileInput" />
+  <button class="btn" onclick="uploadAndExtract()">Upload & Extract</button>
+
+  <div id="reviewContainer" style="margin-top: 30px;"></div>
+  <button id="submitBtn" class="btn" style="display:none;" onclick="submitToSupabase()">Submit to Supabase</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
