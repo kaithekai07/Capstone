@@ -85,7 +85,12 @@
 
       React.useEffect(() => {
         const raw = localStorage.getItem("car_data");
-        if (raw) setData(JSON.parse(raw));
+        const carId = localStorage.getItem("car_id");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          console.log("Parsed data for review:", parsed); // ✅ Debug output
+          setData(parsed);
+        }
       }, []);
 
       const handleChange = (sec, idx, key, val) => {
@@ -98,13 +103,17 @@
         setLoading(true);
         setStatus("Submitting...");
         try {
-          const res = await fetch("https://capstone-backend-128c.onrender.com/submit", {
+          const carId = localStorage.getItem("car_id");
+          const res = await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
+            body: JSON.stringify({
+              car_id: carId,
+              data: data
+            })
           });
           const result = await res.json();
-          setStatus(result.result || result.error || "Submitted.");
+          setStatus(result.status || result.error || "Submitted.");
         } catch (err) {
           setStatus("❌ " + err.message);
         } finally {
@@ -143,19 +152,23 @@
 
           <main className="section-content">
             <h2>{sectionLabels[section]}</h2>
-            {data[section]?.map((record, i) => (
-              <div key={i} className="record-box">
-                {Object.entries(record).map(([key, val]) => (
-                  <div key={key} className="input-group">
-                    <label>{key}</label>
-                    <input
-                      value={val}
-                      onChange={(e) => handleChange(section, i, key, e.target.value)}
-                    />
-                  </div>
-                ))}
-              </div>
-            ))}
+            {data[section]?.length > 0 ? (
+              data[section].map((record, i) => (
+                <div key={i} className="record-box">
+                  {Object.entries(record).map(([key, val]) => (
+                    <div key={key} className="input-group">
+                      <label>{key}</label>
+                      <input
+                        value={val}
+                        onChange={(e) => handleChange(section, i, key, e.target.value)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))
+            ) : (
+              <p>No data found for this section.</p>
+            )}
           </main>
         </div>
       );
@@ -166,4 +179,3 @@
   </script>
 </body>
 </html>
-
