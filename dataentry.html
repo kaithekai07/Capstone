@@ -1,3 +1,5 @@
+<!-- 🟢 FULL DASHBOARD HTML with STATUS CIRCLE -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,19 +8,13 @@
   <title>Dashboard | Safesight AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #174978;
       color: #ffffff;
       min-height: 100vh;
     }
-
     header {
       background-color: #000;
       display: flex;
@@ -26,40 +22,26 @@
       align-items: center;
       padding: 0.8rem 2rem;
     }
-
     .logo {
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
+    .logo img { height: 35px; width: auto; }
+    .logo strong { font-size: 1.2rem; font-weight: bold; color: #ffffff; }
 
-    .logo img {
-      height: 35px;
-      width: auto;
+    nav a, nav button {
+      color: white;
+      margin-left: 1.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      background: none;
+      border: none;
+      font: inherit;
+      cursor: pointer;
+      transition: color 0.3s ease;
     }
-
-    .logo strong {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #ffffff;
-    }
-
-nav a, nav button {
-  color: white;
-  margin-left: 1.5rem;
-  text-decoration: none;
-  font-weight: 500;
-  background: none;
-  border: none;
-  font: inherit;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-nav a:hover, nav button:hover {
-  color: #00c6ff; /* 🔹 THIS is the hover highlight color */
-}
-
+    nav a:hover, nav button:hover { color: #00c6ff; }
 
     h1 {
       text-align: center;
@@ -98,7 +80,7 @@ nav a:hover, nav button:hover {
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 700px;
+      min-width: 800px;
     }
 
     th, td {
@@ -115,18 +97,9 @@ nav a:hover, nav button:hover {
       font-weight: 600;
     }
 
-    tr:hover {
-      background-color: #e6f7ff;
-    }
-
-    td[contenteditable="true"] {
-      background-color: #f0f9ff;
-      cursor: text;
-    }
-
-    td:focus {
-      outline: 2px solid #00bfa5;
-    }
+    tr:hover { background-color: #e6f7ff; }
+    td[contenteditable="true"] { background-color: #f0f9ff; cursor: text; }
+    td:focus { outline: 2px solid #00bfa5; }
 
     .delete-btn {
       color: red;
@@ -134,6 +107,14 @@ nav a:hover, nav button:hover {
       font-weight: bold;
       border: none;
       background: none;
+    }
+
+    .status-circle {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
     }
 
     footer {
@@ -157,259 +138,257 @@ nav a:hover, nav button:hover {
       z-index: 9999;
       animation: fadein 0.3s ease, fadeout 0.3s ease 2.7s;
     }
-
-    .toast.error {
-      background-color: #ff4444;
-    }
+    .toast.error { background-color: #ff4444; }
 
     @keyframes fadein {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
     @keyframes fadeout {
       from { opacity: 1; transform: translateY(0); }
       to { opacity: 0; transform: translateY(20px); }
     }
 
     @media (max-width: 768px) {
-      nav ul {
-        flex-direction: column;
-        align-items: flex-end;
-      }
-
-      h1 {
-        font-size: 2rem;
-      }
-
-      .controls {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      th, td {
-        font-size: 0.85rem;
-        padding: 0.5rem;
-      }
+      nav ul { flex-direction: column; align-items: flex-end; }
+      h1 { font-size: 2rem; }
+      .controls { flex-direction: column; align-items: stretch; }
+      th, td { font-size: 0.85rem; padding: 0.5rem; }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">
-      <img src="safesight.jpg" alt="Safesight AI Logo">
-      <strong>Safesight AI</strong>
-    </div>
-    <nav>
-      <a href="safesightai.html">Home</a>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="about.html">About</a>
-      <a href="dataentry.html">Data Entry</a>
-      <a href="contact.html">Contact</a>
-      <button onclick="logout()">Logout</button>
-    </nav>
-  </header>
-
-  <h1>CAR Dashboard</h1>
-
-  <div class="controls">
-    <input type="text" id="search" placeholder="🔍 Search description or filename..." />
-    <input type="date" id="start-date" />
-    <input type="date" id="end-date" />
-    <button id="add-row">➕ Add New Row</button>
+<header>
+  <div class="logo">
+    <img src="safesight.jpg" alt="Safesight AI Logo">
+    <strong>Safesight AI</strong>
   </div>
+  <nav>
+    <a href="safesightai.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="about.html">About</a>
+    <a href="dataentry.html">Data Entry</a>
+    <a href="contact.html">Contact</a>
+    <button onclick="logout()">Logout</button>
+  </nav>
+</header>
 
-  <div class="table-wrapper">
-    <table id="data-table">
-      <thead>
-        <tr>
-          <th>CAR ID</th>
-          <th>Description</th>
-          <th>Date</th>
-          <th>Filename</th>
-          <th>File URL</th>
-          <th>🗑️</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+<h1>CAR Dashboard</h1>
 
-  <footer>
-    © 2025 Safesight AI. All rights reserved.
-  </footer>
+<div class="controls">
+  <input type="text" id="search" placeholder="🔍 Search description or filename..." />
+  <input type="date" id="start-date" />
+  <input type="date" id="end-date" />
+  <button id="add-row">➕ Add New Row</button>
+</div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-    import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+<div class="table-wrapper">
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>CAR ID</th>
+        <th>Description</th>
+        <th>Date</th>
+        <th>Filename</th>
+        <th>File URL</th>
+        <th>Status</th>
+        <th>🗑️</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 
-    const supabase = createClient(
-      'https://nfcgehfenpjqrijxgzio.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDc0Mjk4MSwiZXhwIjoyMDY2MzE4OTgxfQ.B__RkNBjBlRn9QC7L72lL2wZKO7O3Yy2iM-Da1cllpc'
-    );
+<footer>
+  © 2025 Safesight AI. All rights reserved.
+</footer>
 
-    const tableName = 'car_reports';
-    const tableBody = document.querySelector("#data-table tbody");
-    const searchInput = document.getElementById("search");
-    const startDateInput = document.getElementById("start-date");
-    const endDateInput = document.getElementById("end-date");
-    const addRowBtn = document.getElementById("add-row");
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 
-    let allRows = [];
+  const supabase = createClient(
+    'https://nfcgehfenpjqrijxgzio.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDc0Mjk4MSwiZXhwIjoyMDY2MzE4OTgxfQ.B__RkNBjBlRn9QC7L72lL2wZKO7O3Yy2iM-Da1cllpc'
+  );
 
-    function showToast(message, type = "success") {
-      const toast = document.createElement("div");
-      toast.className = `toast ${type === "error" ? "error" : ""}`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
+  const tableName = 'car_reports';
+  const tableBody = document.querySelector("#data-table tbody");
+  const searchInput = document.getElementById("search");
+  const startDateInput = document.getElementById("start-date");
+  const endDateInput = document.getElementById("end-date");
+  const addRowBtn = document.getElementById("add-row");
 
-    async function fetchData() {
-      const { data, error } = await supabase.from(tableName).select("*");
-      if (error) return console.error("Fetch error:", error);
-      allRows = data;
-      applyFilters();
-    }
+  let allRows = [];
 
-    function renderRows(rows) {
-      tableBody.innerHTML = "";
-      rows.forEach(row => addRowToDOM(row));
-    }
+  function showToast(message, type = "success") {
+    const toast = document.createElement("div");
+    toast.className = `toast ${type === "error" ? "error" : ""}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
 
-    function addRowToDOM(row, isNew = false) {
-      const tr = document.createElement("tr");
-      const keys = ['car_id', 'description', 'date', 'filename', 'file_url'];
+  async function fetchData() {
+    const { data, error } = await supabase.from(tableName).select("*");
+    if (error) return console.error("Fetch error:", error);
+    allRows = data;
+    applyFilters();
+  }
 
-      keys.forEach(key => {
-        const td = document.createElement("td");
-        td.textContent = row[key] ?? "";
-        if (key !== 'car_id') {
-          td.contentEditable = "true";
-          td.dataset.field = key;
-          td.dataset.id = row.car_id;
-          td.dataset.isNew = isNew;
-          td.addEventListener("blur", updateField);
-          td.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              td.blur();
-            }
-          });
-        }
-        tr.appendChild(td);
-      });
+  function renderRows(rows) {
+    tableBody.innerHTML = "";
+    rows.forEach(row => addRowToDOM(row));
+  }
 
-      const delTd = document.createElement("td");
-      const btn = document.createElement("button");
-      btn.textContent = "🗑️";
-      btn.className = "delete-btn";
-      btn.onclick = () => deleteRow(row.car_id);
-      delTd.appendChild(btn);
-      tr.appendChild(delTd);
+  function addRowToDOM(row, isNew = false) {
+    const tr = document.createElement("tr");
+    const keys = ['car_id', 'description', 'date', 'filename', 'file_url'];
 
-      tableBody.appendChild(tr);
-    }
-
-    async function updateField(e) {
-      const td = e.target;
-      const field = td.dataset.field;
-      const id = td.dataset.id;
-      const value = td.textContent;
-      const isNew = td.dataset.isNew === "true";
-
-      const row = Array.from(td.parentElement.children).reduce((acc, cell) => {
-        if (cell.dataset.field) {
-          acc[cell.dataset.field] = cell.textContent.trim();
-        }
-        return acc;
-      }, {});
-
-      if (isNew) {
-        const insertData = {
-          car_id: id,
-          ...row,
-          submitted_at: new Date().toISOString()
-        };
-        const { error } = await supabase.from(tableName).insert(insertData);
-        if (!error) {
-          td.dataset.isNew = "false";
-          allRows.push(insertData);
-          showToast("Row added ✅");
-        } else {
-          showToast("Insert failed ❌", "error");
-          console.error(error);
-        }
-      } else {
-        const { error } = await supabase
-          .from(tableName)
-          .update({ [field]: value })
-          .eq('car_id', id);
-
-        if (error) {
-          console.error("Update error:", error);
-          alert("Update failed");
-        }
+    keys.forEach(key => {
+      const td = document.createElement("td");
+      td.textContent = row[key] ?? "";
+      if (key !== 'car_id') {
+        td.contentEditable = "true";
+        td.dataset.field = key;
+        td.dataset.id = row.car_id;
+        td.dataset.isNew = isNew;
+        td.addEventListener("blur", updateField);
+        td.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            td.blur();
+          }
+        });
       }
-    }
-
-    async function deleteRow(id) {
-      if (!confirm("Delete this row?")) return;
-      const { error } = await supabase.from(tableName).delete().eq("car_id", id);
-      if (!error) {
-        allRows = allRows.filter(row => row.car_id !== id);
-        applyFilters();
-        showToast("Row deleted 🗑️");
-      } else {
-        showToast("Delete failed ❌", "error");
-      }
-    }
-
-    addRowBtn.addEventListener("click", () => {
-      const newId = uuidv4();
-      const newRow = {
-        car_id: newId,
-        description: "",
-        date: "",
-        filename: "",
-        file_url: ""
-      };
-      addRowToDOM(newRow, true);
-      showToast("New row added. Edit to save ✅");
+      tr.appendChild(td);
     });
 
-    function applyFilters() {
-      const term = searchInput.value.toLowerCase();
-      const startDate = startDateInput.value;
-      const endDate = endDateInput.value;
+    // ✅ Status column
+    const statusTd = document.createElement("td");
+    const circle = document.createElement("span");
+    circle.className = "status-circle";
+    circle.style.backgroundColor = row.submitted ? "green" : "red";
 
-      const filtered = allRows.filter(row => {
-        const matchesSearch =
-          row.description?.toLowerCase().includes(term) ||
-          row.filename?.toLowerCase().includes(term);
+    const label = document.createElement("span");
+    label.textContent = row.submitted ? "Submitted" : "Not Submitted";
 
-        const rowDate = row.submitted_at ? new Date(row.submitted_at) : null;
-        const matchesDate = (!startDate || (rowDate && rowDate >= new Date(startDate))) &&
-                            (!endDate || (rowDate && rowDate <= new Date(endDate)));
+    statusTd.appendChild(circle);
+    statusTd.appendChild(label);
+    tr.appendChild(statusTd);
 
-        return matchesSearch && matchesDate;
-      });
+    // Delete button
+    const delTd = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.textContent = "🗑️";
+    btn.className = "delete-btn";
+    btn.onclick = () => deleteRow(row.car_id);
+    delTd.appendChild(btn);
+    tr.appendChild(delTd);
 
-      renderRows(filtered);
+    tableBody.appendChild(tr);
+  }
+
+  async function updateField(e) {
+    const td = e.target;
+    const field = td.dataset.field;
+    const id = td.dataset.id;
+    const value = td.textContent;
+    const isNew = td.dataset.isNew === "true";
+
+    const row = Array.from(td.parentElement.children).reduce((acc, cell) => {
+      if (cell.dataset.field) {
+        acc[cell.dataset.field] = cell.textContent.trim();
+      }
+      return acc;
+    }, {});
+
+    if (isNew) {
+      const insertData = {
+        car_id: id,
+        ...row,
+        submitted_at: new Date().toISOString(),
+        submitted: false
+      };
+      const { error } = await supabase.from(tableName).insert(insertData);
+      if (!error) {
+        td.dataset.isNew = "false";
+        allRows.push(insertData);
+        showToast("Row added ✅");
+      } else {
+        showToast("Insert failed ❌", "error");
+        console.error(error);
+      }
+    } else {
+      const { error } = await supabase
+        .from(tableName)
+        .update({ [field]: value })
+        .eq('car_id', id);
+      if (error) {
+        console.error("Update error:", error);
+        alert("Update failed");
+      }
     }
+  }
 
-    searchInput.addEventListener("input", applyFilters);
-    startDateInput.addEventListener("change", applyFilters);
-    endDateInput.addEventListener("change", applyFilters);
-
-    fetchData();
-
-    window.logout = async function () {
-      await supabase.auth.signOut();
-      window.location.href = "index.html";
+  async function deleteRow(id) {
+    if (!confirm("Delete this row?")) return;
+    const { error } = await supabase.from(tableName).delete().eq("car_id", id);
+    if (!error) {
+      allRows = allRows.filter(row => row.car_id !== id);
+      applyFilters();
+      showToast("Row deleted 🗑️");
+    } else {
+      showToast("Delete failed ❌", "error");
     }
-  </script>
+  }
+
+  addRowBtn.addEventListener("click", () => {
+    const newId = uuidv4();
+    const newRow = {
+      car_id: newId,
+      description: "",
+      date: "",
+      filename: "",
+      file_url: "",
+      submitted: false
+    };
+    addRowToDOM(newRow, true);
+    showToast("New row added. Edit to save ✅");
+  });
+
+  function applyFilters() {
+    const term = searchInput.value.toLowerCase();
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+
+    const filtered = allRows.filter(row => {
+      const matchesSearch =
+        row.description?.toLowerCase().includes(term) ||
+        row.filename?.toLowerCase().includes(term);
+
+      const rowDate = row.submitted_at ? new Date(row.submitted_at) : null;
+      const matchesDate = (!startDate || (rowDate && rowDate >= new Date(startDate))) &&
+                          (!endDate || (rowDate && rowDate <= new Date(endDate)));
+
+      return matchesSearch && matchesDate;
+    });
+
+    renderRows(filtered);
+  }
+
+  searchInput.addEventListener("input", applyFilters);
+  startDateInput.addEventListener("change", applyFilters);
+  endDateInput.addEventListener("change", applyFilters);
+
+  fetchData();
+
+  window.logout = async function () {
+    await supabase.auth.signOut();
+    window.location.href = "index.html";
+  }
+</script>
 </body>
 </html>
 
