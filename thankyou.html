@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Thank You - CAR Upload</title>
+  <meta http-equiv="refresh" content="5;url=dataentry.html" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -83,6 +84,7 @@
       font-weight: bold;
       cursor: pointer;
       transition: all 0.3s ease;
+      text-decoration: none;
     }
 
     .home-btn {
@@ -109,41 +111,29 @@
     <div class="thank-you-title">Thank you for uploading your CAR!</div>
     <div class="checkmark"></div>
 
-    <!-- Progress Bar -->
     <div class="progress-container">
       <div class="progress-bar"></div>
     </div>
 
     <div class="message">
       You’ll receive a confirmation email once the final output is ready.<br>
-      Kindly wait for a short moment.
+      Redirecting to data entry page in 5 seconds...
     </div>
 
     <div class="buttons">
-      <button class="button home-btn">BACK TO HOME PAGE</button>
-      <button class="button upload-btn">UPLOAD NEW CAR</button>
+      <a class="button home-btn" href="safesightai.html">BACK TO HOME PAGE</a>
+      <a class="button upload-btn" href="upload.html">UPLOAD NEW CAR</a>
     </div>
   </div>
 
-  <!-- JavaScript to simulate 2-hour progress -->
   <script>
-    const duration = 30 * 60 * 1000;
-    const startTime = Date.now();
     const bar = document.querySelector('.progress-bar');
-
-    function updateProgress() {
-      const elapsed = Date.now() - startTime;
-      const percent = Math.min((elapsed / duration) * 100, 100);
-      bar.style.width = percent + '%';
-
-      if (percent < 100) {
-        requestAnimationFrame(updateProgress);
-      } else {
-        console.log("Progress complete.");
-      }
-    }
-
-    updateProgress(); // Start progress
+    let percent = 0;
+    const interval = setInterval(() => {
+      percent += 20;
+      bar.style.width = percent + "%";
+      if (percent >= 100) clearInterval(interval);
+    }, 1000);
   </script>
 </body>
 </html>
