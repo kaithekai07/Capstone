@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Thank You - CAR Upload</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #fefefe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      border: 10px solid #a473f4;
+    }
+
+    .thank-you-container {
+      text-align: center;
+      padding: 40px;
+      max-width: 600px;
+    }
+
+    .thank-you-title {
+      font-size: 28px;
+      color: #222;
+      margin-bottom: 20px;
+    }
+
+    .checkmark {
+      width: 100px;
+      height: 100px;
+      background-color: #00c853;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .checkmark::after {
+      content: '✔';
+      font-size: 50px;
+      color: white;
+    }
+
+    .progress-container {
+      width: 80%;
+      background-color: #eee;
+      border-radius: 20px;
+      margin: 20px auto;
+      height: 18px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00c853, #a2f5a2);
+      transition: width 1s linear;
+    }
+
+    .message {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .home-btn {
+      background-color: #00c853;
+      color: white;
+    }
+
+    .home-btn:hover {
+      background-color: #00b34a;
+    }
+
+    .upload-btn {
+      background-color: #f8c8f9;
+      color: #000;
+    }
+
+    .upload-btn:hover {
+      background-color: #f3aaf4;
+    }
+  </style>
+</head>
+<body>
+  <div class="thank-you-container">
+    <div class="thank-you-title">Thank you for uploading your CAR!</div>
+    <div class="checkmark"></div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar"></div>
+    </div>
+
+    <div class="message">
+      You’ll receive a confirmation email once the final output is ready.<br>
+      Kindly wait for a short moment.
+    </div>
+
+    <div class="buttons">
+      <button class="button home-btn">BACK TO HOME PAGE</button>
+      <button class="button upload-btn">UPLOAD NEW CAR</button>
+    </div>
+  </div>
+
+  <!-- JavaScript to simulate 2-hour progress -->
+  <script>
+    const duration = 30 * 60 * 1000;
+    const startTime = Date.now();
+    const bar = document.querySelector('.progress-bar');
+
+    function updateProgress() {
+      const elapsed = Date.now() - startTime;
+      const percent = Math.min((elapsed / duration) * 100, 100);
+      bar.style.width = percent + '%';
+
+      if (percent < 100) {
+        requestAnimationFrame(updateProgress);
+      } else {
+        console.log("Progress complete.");
+      }
+    }
+
+    updateProgress(); // Start progress
+  </script>
+</body>
+</html>
