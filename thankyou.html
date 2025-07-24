@@ -126,14 +126,33 @@
     </div>
   </div>
 
-  <script>
-    const bar = document.querySelector('.progress-bar');
-    let percent = 0;
-    const interval = setInterval(() => {
-      percent += 20;
-      bar.style.width = percent + "%";
-      if (percent >= 100) clearInterval(interval);
-    }, 1000);
-  </script>
+<script>
+  const bar = document.querySelector('.progress-bar');
+  let width = 0;
+
+  async function waitForFinalProcessing() {
+    try {
+      const carId = localStorage.getItem("car_id");
+      const res = await fetch(`https://capstone-backend-128c.onrender.com/submit-car-status/${carId}`);
+      const data = await res.json();
+
+      // Simulate full progress visually
+      const interval = setInterval(() => {
+        if (width >= 100) {
+          clearInterval(interval);
+          window.location.href = "dataentry.html";
+        } else {
+          width += 2;
+          bar.style.width = width + "%";
+        }
+      }, 100);  // 100ms x 50 = 5s
+    } catch (err) {
+      alert("❌ Error checking processing status.");
+    }
+  }
+
+  waitForFinalProcessing();
+</script>
+
 </body>
 </html>
