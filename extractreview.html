@@ -2,73 +2,72 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Review Extracted CAR Data</title>
+  <title>Review CAR Data</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
+      font-family: sans-serif;
+      background-color: #f5f5f5;
     }
-    .review-container {
+    .container {
       display: flex;
       height: 100vh;
     }
     .sidebar {
-      width: 250px;
-      background: #f1f5f9;
+      width: 200px;
+      background: #e0e0e0;
       padding: 1rem;
-      border-right: 1px solid #ccc;
       display: flex;
       flex-direction: column;
     }
     .sidebar button {
-      margin-bottom: 0.5rem;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: none;
-      text-align: left;
       background: none;
+      border: none;
+      padding: 0.5rem;
+      margin-bottom: 0.25rem;
+      text-align: left;
       cursor: pointer;
-      border-radius: 5px;
     }
-    .sidebar button:hover,
-    .sidebar .active {
-      background-color: #2563eb;
+    .sidebar button.active {
+      background: #007acc;
       color: white;
     }
-    .submit-btn {
+    .sidebar button.submit-btn {
       margin-top: auto;
-      background-color: #10b981 !important;
-      color: white !important;
+      background: #28a745;
+      color: white;
     }
-    .section-content {
-      flex-grow: 1;
-      padding: 2rem;
+    .content {
+      flex: 1;
+      padding: 1rem;
       overflow-y: auto;
+      background: white;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 1rem;
+      font-size: 14px;
     }
     th, td {
       border: 1px solid #ccc;
-      padding: 8px;
+      padding: 6px;
     }
     th {
-      background-color: #f1f5f9;
-      text-align: left;
+      background-color: #f0f0f0;
     }
     input {
       width: 100%;
       padding: 4px;
+      font-size: 13px;
       box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    }
+    .status {
+      margin-top: 1rem;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -84,10 +83,8 @@
 
       React.useEffect(() => {
         const raw = localStorage.getItem("car_data");
-        const carId = localStorage.getItem("car_id");
         if (raw) {
           const parsed = JSON.parse(raw);
-          console.log("Parsed data for review:", parsed);
           setData(parsed);
         }
       }, []);
@@ -106,10 +103,7 @@
           const res = await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              car_id: carId,
-              data: data
-            })
+            body: JSON.stringify({ car_id: carId, data })
           });
           const result = await res.json();
           if (result.status && result.status.includes("✅")) {
@@ -135,8 +129,8 @@
       };
 
       return (
-        <div className="review-container">
-          <aside className="sidebar">
+        <div className="container">
+          <div className="sidebar">
             {Object.keys(sectionLabels).map((key) => (
               <button
                 key={key}
@@ -147,46 +141,43 @@
               </button>
             ))}
             <button className="submit-btn" onClick={handleSubmit} disabled={loading}>
-              ✅ Submit to Supabase
+              ✅ Submit
             </button>
-            {loading && <p>Submitting...</p>}
-            {status && <p>{status}</p>}
-          </aside>
+            {status && <p className="status">{status}</p>}
+          </div>
 
-          <main className="section-content">
-            <h2>{sectionLabels[section]}</h2>
+          <div className="content">
+            <h3>{sectionLabels[section]}</h3>
             {data[section]?.length > 0 ? (
-              <div style={{ overflowX: "auto" }}>
-                <table>
-                  <thead>
-                    <tr>
-                      {Object.keys(data[section][0]).map((field) => (
-                        <th key={field}>{field}</th>
+              <table>
+                <thead>
+                  <tr>
+                    {Object.keys(data[section][0]).map((field) => (
+                      <th key={field}>{field}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {data[section].map((record, rowIdx) => (
+                    <tr key={rowIdx}>
+                      {Object.entries(record).map(([key, val]) => (
+                        <td key={key}>
+                          <input
+                            value={val}
+                            onChange={(e) =>
+                              handleChange(section, rowIdx, key, e.target.value)
+                            }
+                          />
+                        </td>
                       ))}
                     </tr>
-                  </thead>
-                  <tbody>
-                    {data[section].map((record, rowIdx) => (
-                      <tr key={rowIdx}>
-                        {Object.entries(record).map(([key, val]) => (
-                          <td key={key}>
-                            <input
-                              value={val}
-                              onChange={(e) =>
-                                handleChange(section, rowIdx, key, e.target.value)
-                              }
-                            />
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             ) : (
               <p>No data found for this section.</p>
             )}
-          </main>
+          </div>
         </div>
       );
     }
@@ -196,3 +187,4 @@
   </script>
 </body>
 </html>
+
