@@ -49,9 +49,12 @@
     }
     table {
       width: 100%;
+      table-layout: fixed;
       border-collapse: collapse;
       font-size: 14px;
-      table-layout: auto; /* Key: allow column width based on content */
+    }
+    colgroup col {
+      border: none;
     }
     th {
       background-color: #071d49;
@@ -189,6 +192,14 @@
             {data[section]?.length > 0 ? (
               section === "Section_C" ? (
                 <table>
+                  <colgroup>
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "40%" }} />
+                  </colgroup>
                   <thead>
                     <tr>
                       <th>CAR NO.</th>
@@ -252,6 +263,7 @@
   </script>
 </body>
 </html>
+
 
 
 
