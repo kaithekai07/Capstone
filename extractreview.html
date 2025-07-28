@@ -2,154 +2,139 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Review CAR Data</title>
+  <title>Root Cause (5Why) Table</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- <style>
-  body {
-    margin: 0;
-    font-family: sans-serif;
-    background-color: #f5f5f5;
-  }
-  .container {
-    display: flex;
-    height: 100vh;
-  }
-  .sidebar {
-    width: 200px;
-    background: #e0e0e0;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-  }
-  .sidebar button {
-    background: none;
-    border: none;
-    padding: 0.5rem;
-    margin-bottom: 0.25rem;
-    text-align: left;
-    cursor: pointer;
-  }
-  .sidebar button.active {
-    background: #007acc;
-    color: white;
-  }
-  .sidebar button.submit-btn {
-    margin-top: auto;
-    background: #28a745;
-    color: white;
-  }
-  .content {
-    flex: 1;
-    padding: 1rem;
-    overflow-y: auto;
-    background: white;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-    table-layout: fixed;
-  }
-  th {
-    background-color: #071d49;
-    color: white;
-    padding: 12px 8px;
-    text-align: left;
-    font-weight: 600;
-    border: 1px solid #ddd;
-  }
-  td {
-    padding: 0;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    vertical-align: middle;
-  }
-  tr:nth-child(even) td {
-    background-color: #f9f9f9;
-  }
-  input {
-    width: 100%;
-    padding: 8px 10px;
-    font-size: 14px;
-    border: none;
-    box-sizing: border-box;
-    background-color: transparent;
-  }
-  input:focus {
-    outline: none;
-    background-color: #eef2ff;
-  }
-  .action-cell {
-    white-space: nowrap;
-    text-align: right;
-    padding-right: 8px;
-  }
-  .action-cell a {
-    margin-left: 10px;
-    color: #007acc;
-    cursor: pointer;
-    text-decoration: none;
-    font-weight: 500;
-  }
-  .action-cell a:hover {
-    text-decoration: underline;
-  }
-</style>
-
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f5f5f5;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 200px;
+      background: #e0e0e0;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar button {
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      margin-bottom: 0.25rem;
+      text-align: left;
+      cursor: pointer;
+    }
+    .sidebar button.active {
+      background: #007acc;
+      color: white;
+    }
+    .sidebar button.submit-btn {
+      margin-top: auto;
+      background: #28a745;
+      color: white;
+    }
+    .content {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      background: white;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      table-layout: fixed;
+    }
+    th {
+      background-color: #071d49;
+      color: white;
+      padding: 12px 8px;
+      text-align: left;
+      font-weight: 600;
+      border: 1px solid #ddd;
+    }
+    td {
+      padding: 0;
+      border: 1px solid #ddd;
+      background-color: #fff;
+      vertical-align: middle;
+    }
+    tr:nth-child(even) td {
+      background-color: #f9f9f9;
+    }
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 14px;
+      border: none;
+      box-sizing: border-box;
+      background-color: transparent;
+    }
+    input:focus {
+      outline: none;
+      background-color: #eef2ff;
+    }
+    input.wide-answer {
+      min-width: 300px;
+    }
+    @media (min-width: 1200px) {
+      input.wide-answer {
+        min-width: 400px;
+      }
+    }
+    .status {
+      margin-top: 1rem;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    function ExtractReview() {
-      const [data, setData] = React.useState({});
-      const [section, setSection] = React.useState("Section_A");
+    function RootCauseTable() {
+      const [data, setData] = React.useState([]);
       const [status, setStatus] = React.useState("");
-      const [loading, setLoading] = React.useState(false);
 
       React.useEffect(() => {
         const raw = localStorage.getItem("car_data");
-        const carId = localStorage.getItem("car_id");
+        const parsed = raw ? JSON.parse(raw) : {};
+        const records = parsed["Section_C"] || [];
 
-        if (!raw || raw === "{}" || !carId) {
-          alert("❌ No CAR data found. Please upload a CAR file first.");
+        if (records.length === 0) {
+          alert("❌ No 5Why data found in Section_C. Please upload a CAR file.");
           window.location.href = "upload.html";
-          return;
-        }
-
-        try {
-          const parsed = JSON.parse(raw);
-          if (Object.keys(parsed).length === 0) {
-            alert("❌ CAR data appears to be empty.");
-            window.location.href = "upload.html";
-          } else {
-            setData(parsed);
-          }
-        } catch (e) {
-          alert("❌ Failed to read saved CAR data.");
-          console.error("JSON parse error:", e);
-          window.location.href = "upload.html";
+        } else {
+          setData(records);
         }
       }, []);
 
-      const handleChange = (sec, idx, key, val) => {
-        const updated = { ...data };
-        updated[sec][idx][key] = val;
+      const handleChange = (index, key, value) => {
+        const updated = [...data];
+        updated[index][key] = value;
         setData(updated);
       };
 
       const handleSubmit = async () => {
-        setLoading(true);
         setStatus("Submitting...");
         try {
           const carId = localStorage.getItem("car_id");
+          const raw = localStorage.getItem("car_data");
+          const fullData = raw ? JSON.parse(raw) : {};
+          fullData["Section_C"] = data;
+
           const res = await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ car_id: carId, data })
+            body: JSON.stringify({ car_id: carId, data: fullData })
           });
           const result = await res.json();
           if (result.status && result.status.includes("✅")) {
@@ -161,89 +146,51 @@
           }
         } catch (err) {
           setStatus("❌ " + err.message);
-        } finally {
-          setLoading(false);
         }
-      };
-
-      const sectionLabels = {
-        Section_A: "General Info",
-        Section_B1: "Chronology",
-        Section_B2: "Cost Impact",
-        Section_C: "Root Cause (5Why)",
-        Section_D: "Correction Taken",
-        Section_E1: "Corrective Action",
-        Section_E2: "Conclusion Review"
       };
 
       return (
         <div className="container">
           <div className="sidebar">
-            {Object.keys(sectionLabels).map((key) => (
-              <button
-                key={key}
-                className={section === key ? "active" : ""}
-                onClick={() => setSection(key)}
-              >
-                {sectionLabels[key]}
-              </button>
-            ))}
-            <button className="submit-btn" onClick={handleSubmit} disabled={loading}>
-              ✅ Submit
-            </button>
+            <button className="active">Root Cause (5Why)</button>
+            <button className="submit-btn" onClick={handleSubmit}>✅ Submit</button>
             {status && <p className="status">{status}</p>}
           </div>
-
           <div className="content">
-            <h3>{sectionLabels[section]}</h3>
-            {data[section]?.length > 0 ? (
-              <table>
-                <thead>
-                  <tr>
-                    {Object.keys(data[section][0]).map((field) => (
-                      <th key={field}>{field}</th>
-                    ))}
+            <h3>Root Cause (5Why)</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>CAR NO.</th>
+                  <th>ID NO. SEC C</th>
+                  <th>ID NO. SEC A</th>
+                  <th>WHY</th>
+                  <th>CAUSAL FACTOR</th>
+                  <th>ANSWER</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((row, idx) => (
+                  <tr key={idx}>
+                    <td><input value={row["CAR NO."]} onChange={(e) => handleChange(idx, "CAR NO.", e.target.value)} /></td>
+                    <td><input value={row["ID NO. SEC C"]} onChange={(e) => handleChange(idx, "ID NO. SEC C", e.target.value)} /></td>
+                    <td><input value={row["ID NO. SEC A"]} onChange={(e) => handleChange(idx, "ID NO. SEC A", e.target.value)} /></td>
+                    <td><input value={row["WHY"]} onChange={(e) => handleChange(idx, "WHY", e.target.value)} /></td>
+                    <td><input value={row["CAUSAL FACTOR"]} onChange={(e) => handleChange(idx, "CAUSAL FACTOR", e.target.value)} /></td>
+                    <td><input className="wide-answer" value={row["ANSWER"]} onChange={(e) => handleChange(idx, "ANSWER", e.target.value)} /></td>
                   </tr>
-                </thead>
-                <tbody>
-                  {data[section].map((record, rowIdx) => (
-                    <tr key={rowIdx}>
-                      {Object.entries(record).map(([key, val]) => (
-                        <td key={key} className={key === "ACTION" ? "action-cell" : ""}>
-                          {key === "ACTION" ? (
-                            <>
-                              <a>Edit</a>
-                              <a>Delete</a>
-                            </>
-                          ) : (
-                            <input
-                              value={val}
-                              onChange={(e) =>
-                                handleChange(section, rowIdx, key, e.target.value)
-                              }
-                            />
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No data found for this section.</p>
-            )}
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       );
     }
 
     const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(<ExtractReview />);
+    root.render(<RootCauseTable />);
   </script>
 </body>
 </html>
 
-  </script>
-</body>
-</html>
 
