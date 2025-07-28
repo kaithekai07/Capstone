@@ -79,16 +79,29 @@
       border: none;
       background-color: transparent;
       box-sizing: border-box;
-      white-space: normal;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
     }
     input:focus {
       outline: none;
       background-color: #eef2ff;
     }
-    input.answer-column {
-      font-weight: 500;
+    textarea.answer-column {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 14px;
+      font-family: inherit;
+      border: none;
+      background-color: transparent;
+      box-sizing: border-box;
+      resize: none;
+      line-height: 1.4;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      height: auto;
+      min-height: 60px;
+    }
+    textarea.answer-column:focus {
+      outline: none;
+      background-color: #eef2ff;
     }
     .status {
       margin-top: 1rem;
@@ -196,12 +209,12 @@
               section === "Section_C" ? (
                 <table>
                   <colgroup>
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "9%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "6%" }} />
-                    <col style={{ width: "17%" }} />
-                    <col style={{ width: "48%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "40%" }} />
                   </colgroup>
                   <thead>
                     <tr>
@@ -221,7 +234,15 @@
                         <td><input value={record["ID NO. SEC A"]} onChange={(e) => handleChange(section, rowIdx, "ID NO. SEC A", e.target.value)} /></td>
                         <td><input value={record["WHY"]} onChange={(e) => handleChange(section, rowIdx, "WHY", e.target.value)} /></td>
                         <td><input value={record["CAUSAL FACTOR"]} onChange={(e) => handleChange(section, rowIdx, "CAUSAL FACTOR", e.target.value)} /></td>
-                        <td><input className="answer-column" style={{ whiteSpace: "normal" }} value={record["ANSWER"]} onChange={(e) => handleChange(section, rowIdx, "ANSWER", e.target.value)} /></td>
+                        <td>
+                          <textarea
+                            className="answer-column"
+                            value={record["ANSWER"]}
+                            onChange={(e) =>
+                              handleChange(section, rowIdx, "ANSWER", e.target.value)
+                            }
+                          ></textarea>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -266,4 +287,5 @@
   </script>
 </body>
 </html>
+
 
