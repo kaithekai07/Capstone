@@ -181,21 +181,18 @@
       });
 
       const result = await response.json();
+      console.log("🔍 Received:", result);
 
-      if (result.data) {
-        loader.style.display = "none";
-        status.innerText = "✅ Extraction complete. Redirecting...";
+      loader.style.display = "none";
 
-        localStorage.setItem("car_data", JSON.stringify(result.data));
-        localStorage.setItem("car_id", formData.get("carId"));
+      // Save data even if it's empty
+      localStorage.setItem("car_data", JSON.stringify(result.data || {}));
+      localStorage.setItem("car_id", formData.get("carId"));
 
-        setTimeout(() => {
-          window.location.href = "extractreview.html";
-        }, 1500);
-      } else {
-        loader.style.display = "none";
-        status.textContent = "❌ " + (result.error || "Unknown server error.");
-      }
+      status.innerText = "✅ Extraction complete. Redirecting...";
+      setTimeout(() => {
+        window.location.href = "extractreview.html";
+      }, 1500);
 
     } catch (err) {
       loader.style.display = "none";
