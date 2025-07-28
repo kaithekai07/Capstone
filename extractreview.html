@@ -67,7 +67,7 @@
     td {
       padding: 0;
       border: 1px solid #ddd;
-      vertical-align: middle;
+      vertical-align: top;
     }
     tr:nth-child(even) td {
       background-color: #f9f9f9;
@@ -79,6 +79,9 @@
       border: none;
       background-color: transparent;
       box-sizing: border-box;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     input:focus {
       outline: none;
@@ -218,7 +221,7 @@
                         <td><input value={record["ID NO. SEC A"]} onChange={(e) => handleChange(section, rowIdx, "ID NO. SEC A", e.target.value)} /></td>
                         <td><input value={record["WHY"]} onChange={(e) => handleChange(section, rowIdx, "WHY", e.target.value)} /></td>
                         <td><input value={record["CAUSAL FACTOR"]} onChange={(e) => handleChange(section, rowIdx, "CAUSAL FACTOR", e.target.value)} /></td>
-                        <td><input className="answer-column" value={record["ANSWER"]} onChange={(e) => handleChange(section, rowIdx, "ANSWER", e.target.value)} /></td>
+                        <td><input className="answer-column" style={{ whiteSpace: "normal" }} value={record["ANSWER"]} onChange={(e) => handleChange(section, rowIdx, "ANSWER", e.target.value)} /></td>
                       </tr>
                     ))}
                   </tbody>
@@ -263,7 +266,4 @@
   </script>
 </body>
 </html>
-
-
-
 
