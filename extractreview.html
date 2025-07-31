@@ -1,3 +1,4 @@
+[media pointer="file-service://file-EBLPq53is7JWQArCfAeoZa"]
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -115,7 +116,7 @@
   <script type="text/babel">
     function ExtractReview() {
       const [data, setData] = React.useState({});
-      const [section, setSection] = React.useState("section_c");
+      const [section, setSection] = React.useState("Section_C");
       const [status, setStatus] = React.useState("");
       const [loading, setLoading] = React.useState(false);
 
@@ -176,13 +177,13 @@
       };
 
       const sectionLabels = {
-        section_a: "General Info",
-        section_b1: "Chronology",
-        section_b2: "Cost Impact",
-        section_c: "Root Cause (5Why)",
-        section_d: "Correction Taken",
-        section_e1: "Corrective Action",
-        section_e2: "Conclusion Review"
+        Section_A: "General Info",
+        Section_B1: "Chronology",
+        Section_B2: "Cost Impact",
+        Section_C: "Root Cause (5Why)",
+        Section_D: "Correction Taken",
+        Section_E1: "Corrective Action",
+        Section_E2: "Conclusion Review"
       };
 
       return (
@@ -205,38 +206,75 @@
 
           <div className="content">
             <h3>{sectionLabels[section]}</h3>
-            {Array.isArray(data[section]) && data[section].length > 0 ? (
-              <table>
-                <thead>
-                  <tr>
-                    {Object.keys(data[section][0]).map((field) => (
-                      <th key={field}>{field}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {data[section].map((record, rowIdx) => (
-                    <tr key={rowIdx}>
-                      {Object.entries(record).map(([key, val]) => (
-                        <td key={key}>
-                          {key === "ANSWER" ? (
-                            <textarea
-                              className="answer-column"
-                              value={val}
-                              onChange={(e) => handleChange(section, rowIdx, key, e.target.value)}
-                            />
-                          ) : (
-                            <input
-                              value={val}
-                              onChange={(e) => handleChange(section, rowIdx, key, e.target.value)}
-                            />
-                          )}
+            {data[section]?.length > 0 ? (
+              section === "Section_C" ? (
+                <table>
+                  <colgroup>
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "40%" }} />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>CAR NO.</th>
+                      <th>ID NO. SEC C</th>
+                      <th>ID NO. SEC A</th>
+                      <th>WHY</th>
+                      <th>CAUSAL FACTOR</th>
+                      <th>ANSWER</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data[section].map((record, rowIdx) => (
+                      <tr key={rowIdx}>
+                        <td><input value={record["CAR NO."]} onChange={(e) => handleChange(section, rowIdx, "CAR NO.", e.target.value)} /></td>
+                        <td><input value={record["ID NO. SEC C"]} onChange={(e) => handleChange(section, rowIdx, "ID NO. SEC C", e.target.value)} /></td>
+                        <td><input value={record["ID NO. SEC A"]} onChange={(e) => handleChange(section, rowIdx, "ID NO. SEC A", e.target.value)} /></td>
+                        <td><input value={record["WHY"]} onChange={(e) => handleChange(section, rowIdx, "WHY", e.target.value)} /></td>
+                        <td><input value={record["CAUSAL FACTOR"]} onChange={(e) => handleChange(section, rowIdx, "CAUSAL FACTOR", e.target.value)} /></td>
+                        <td>
+                          <textarea
+                            className="answer-column"
+                            value={record["ANSWER"]}
+                            onChange={(e) =>
+                              handleChange(section, rowIdx, "ANSWER", e.target.value)
+                            }
+                          ></textarea>
                         </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <table>
+                  <thead>
+                    <tr>
+                      {Object.keys(data[section][0]).map((field) => (
+                        <th key={field}>{field}</th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {data[section].map((record, rowIdx) => (
+                      <tr key={rowIdx}>
+                        {Object.entries(record).map(([key, val]) => (
+                          <td key={key}>
+                            <input
+                              value={val}
+                              onChange={(e) =>
+                                handleChange(section, rowIdx, key, e.target.value)
+                              }
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )
             ) : (
               <p>No data found for this section.</p>
             )}
@@ -251,4 +289,4 @@
 </body>
 </html>
 
-
+the picture is my car_report rn and i want the html to display that table, keeping all functions, please integrate for me
