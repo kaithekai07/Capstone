@@ -1,11 +1,9 @@
-<!-- 🟢 FULL DASHBOARD HTML with STATUS CIRCLE -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard | Safesight AI</title>
+  <title>Data Record | Safesight AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -80,7 +78,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 800px;
+      min-width: 900px;
     }
 
     th, td {
@@ -107,6 +105,15 @@
       font-weight: bold;
       border: none;
       background: none;
+    }
+
+    .view-btn {
+      background: #008cff;
+      color: white;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
     .status-circle {
@@ -193,6 +200,7 @@
         <th>Filename</th>
         <th>File URL</th>
         <th>Status</th>
+        <th>Sections</th>
         <th>🗑️</th>
       </tr>
     </thead>
@@ -210,7 +218,7 @@
 
   const supabase = createClient(
     'https://nfcgehfenpjqrijxgzio.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDc0Mjk4MSwiZXhwIjoyMDY2MzE4OTgxfQ.B__RkNBjBlRn9QC7L72lL2wZKO7O3Yy2iM-Da1cllpc'
+    'YOUR_PUBLIC_SUPABASE_KEY_HERE'
   );
 
   const tableName = 'car_reports';
@@ -265,20 +273,35 @@
       tr.appendChild(td);
     });
 
-    // ✅ Status column
     const statusTd = document.createElement("td");
     const circle = document.createElement("span");
     circle.className = "status-circle";
     circle.style.backgroundColor = row.submitted ? "green" : "red";
-
     const label = document.createElement("span");
     label.textContent = row.submitted ? "Submitted" : "Not Submitted";
-
     statusTd.appendChild(circle);
     statusTd.appendChild(label);
     tr.appendChild(statusTd);
 
-    // Delete button
+    // ✅ New section viewer
+    const sectionTd = document.createElement("td");
+    const viewBtn = document.createElement("button");
+    viewBtn.textContent = "👁️";
+    viewBtn.className = "view-btn";
+    viewBtn.onclick = () => {
+      alert(JSON.stringify({
+        section_a: row.section_a,
+        section_b1: row.section_b1,
+        section_b2: row.section_b2,
+        section_c: row.section_c,
+        section_d: row.section_d,
+        section_e1: row.section_e1,
+        section_e2: row.section_e2
+      }, null, 2));
+    };
+    sectionTd.appendChild(viewBtn);
+    tr.appendChild(sectionTd);
+
     const delTd = document.createElement("td");
     const btn = document.createElement("button");
     btn.textContent = "🗑️";
