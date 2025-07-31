@@ -305,9 +305,6 @@
 
     const filtered = allRows.filter(row => {
       const matchesSearch = row.car_id?.toLowerCase().includes(term);
-      const rowDate = row.submitted_at ? new Date(row.submitted_at) : null;
-      const matchesDate = (!startDate || (rowDate && rowDate >= new Date(startDate))) &&
-                          (!endDate || (rowDate && rowDate <= new Date(endDate)));
       return matchesSearch && matchesDate;
     });
 
