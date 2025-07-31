@@ -298,14 +298,18 @@
     }
   });
 
-  function applyFilters() {
-    const term = searchInput.value.toLowerCase();
-    const startDate = startDateInput.value;
-    const endDate = endDateInput.value;
 
-    const filtered = allRows.filter(row => {
-      const matchesSearch = row.car_id?.toLowerCase().includes(term);
-      return matchesSearch && matchesDate;
+function applyFilters() {
+  const term = searchInput.value.toLowerCase();
+
+  const filtered = allRows.filter(row => {
+    const matchesSearch = row.car_id?.toLowerCase().includes(term);
+    return matchesSearch; // ✅ only check car_id for now
+  });
+
+  renderRows(filtered);
+}
+
     });
 
     renderRows(filtered);
