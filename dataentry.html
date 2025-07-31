@@ -304,16 +304,12 @@ function applyFilters() {
 
   const filtered = allRows.filter(row => {
     const matchesSearch = row.car_id?.toLowerCase().includes(term);
-    return matchesSearch; // ✅ only check car_id for now
+    return matchesSearch;
   });
 
   renderRows(filtered);
 }
 
-    });
-
-    renderRows(filtered);
-  }
 
   searchInput.addEventListener("input", applyFilters);
   startDateInput.addEventListener("change", applyFilters);
