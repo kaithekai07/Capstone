@@ -141,15 +141,18 @@
         }
       }, []);
 
-      const handleSelectChange = (e) => {
-        const cid = e.target.value;
-        const found = allCARs.find((car) => car.car_id === cid);
-        if (found) {
-          setSelectedCarId(cid);
-          setData(found.data);
-          setStatus("");
-        }
-      };
+const handleSelectChange = (e) => {
+  setSelectedCarId(e.target.value);
+  setStatus("");
+};
+
+React.useEffect(() => {
+  const found = allCARs.find((car) => car.car_id === selectedCarId);
+  if (found) {
+    setData(found.data);
+  }
+}, [selectedCarId, allCARs]);
+
 
       const handleChange = (sec, idx, key, val) => {
         const updatedData = { ...data };
