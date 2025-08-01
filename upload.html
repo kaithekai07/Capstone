@@ -19,14 +19,25 @@
       margin-bottom: 1rem;
     }
 
-    .form-container {
+    .carousel-container {
+      width: 100%;
+      max-width: 1000px;
+      overflow-x: auto;
+      display: flex;
+      gap: 1rem;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      padding-bottom: 1rem;
+    }
+
+    .form-wrapper {
+      flex: 0 0 90%;
+      scroll-snap-align: start;
       background-color: white;
       padding: 2rem;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 500px;
-      margin-bottom: 2rem;
+      min-width: 300px;
       position: relative;
     }
 
@@ -63,6 +74,8 @@
       display: flex;
       justify-content: space-between;
       margin-top: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
     button,
@@ -88,27 +101,34 @@
     .home-btn {
       background-color: #10b981;
       color: white;
+      margin-top: 1.5rem;
     }
 
     .add-more {
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       background-color: #6b7280;
       color: white;
     }
 
     .status {
-      text-align: center;
       margin-top: 1rem;
       font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .form-wrapper {
+        flex: 0 0 95%;
+      }
     }
   </style>
 </head>
 <body>
   <h2>Upload CAR</h2>
-
   <button class="add-more" onclick="addUploadForm()">➕ Add Another CAR</button>
 
-  <div id="uploadFormsContainer"></div>
+  <div class="carousel-container" id="uploadFormsContainer">
+    <!-- Forms appear here -->
+  </div>
 
   <a href="safesightai.html" class="home-btn">🏠 Back to Home</a>
 
@@ -120,7 +140,7 @@
 
       const formId = `uploadForm-${formIndex}`;
       const html = `
-        <div class="form-container" id="form-wrapper-${formIndex}">
+        <div class="form-wrapper" id="form-wrapper-${formIndex}">
           <form id="${formId}" enctype="multipart/form-data">
             <label for="car-id-${formIndex}">CAR ID</label>
             <input type="text" id="car-id-${formIndex}" name="carId" placeholder="Enter CAR ID" required />
@@ -176,7 +196,7 @@
             localStorage.setItem("car_data_multi", JSON.stringify(allCARs));
             localStorage.setItem("car_id", carId);
             localStorage.setItem("car_data", JSON.stringify(car.data));
-            statusEl.textContent = "✅ Uploaded! Ready for review.";
+            statusEl.textContent = "✅ Uploaded! Redirecting...";
             setTimeout(() => {
               window.location.href = "extractreview.html";
             }, 1500);
@@ -196,7 +216,7 @@
       if (wrapper) wrapper.remove();
     }
 
-    // Add one form by default
+    // Add initial form on load
     window.onload = addUploadForm;
   </script>
 </body>
