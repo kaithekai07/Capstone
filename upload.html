@@ -176,66 +176,70 @@
     }
 
     async function submitAll() {
-      const statusEls = document.querySelectorAll(".status");
-      statusEls.forEach(el => el.textContent = "🔄 Uploading...");
-
       const formWrappers = document.querySelectorAll(".form-wrapper");
-      const combinedFormData = new FormData();
-      const carIds = [];
+      if (formWrappers.length === 0) {
+        alert("Please add at least one CAR to upload.");
+        return;
+      }
+
+      const uploadedResults = [];
 
       for (let i = 0; i < formWrappers.length; i++) {
         const form = formWrappers[i].querySelector("form");
-        const fileInput = form.querySelector('input[type="file"]');
-        const carId = form.querySelector('input[name="carId"]').value;
+        const statusEl = formWrappers[i].querySelector(".status");
+        const formData = new FormData(form);
 
-        if (!fileInput.files.length) {
-          alert(`❌ Please upload a PDF in form ${i + 1}`);
-          return;
+        statusEl.textContent = "🔄 Uploading...";
+
+        try {
+          const response = await fetch("https://capstone-backend-128c.onrender.com/analyze", {
+            method: "POST",
+            body: formData
+          });
+
+          const contentType = response.headers.get("content-type") || "";
+          if (!contentType.includes("application/json")) {
+            const errorText = await response.text();
+            throw new Error("Non-JSON response: " + errorText);
+          }
+
+          const result = await response.json();
+          const res = result.results?.[0];
+          if (!res || !res.car_id) {
+            throw new Error("Missing CAR ID in result");
+          }
+
+          uploadedResults.push(res);
+          statusEl.textContent = `✅ Uploaded: ${res.car_id}`;
+        } catch (err) {
+          statusEl.textContent = "❌ Upload failed";
+          console.error(err);
         }
-
-        combinedFormData.append("file", fileInput.files[0]);
-        combinedFormData.append("carId", carId);
-        carIds.push(carId);
       }
 
-      try {
-        const response = await fetch("https://capstone-backend-128c.onrender.com/analyze", {
-          method: "POST",
-          body: combinedFormData
+      if (uploadedResults.length > 0) {
+        // Merge with existing if any
+        const existing = JSON.parse(localStorage.getItem("car_data_multi") || "[]");
+        const all = [...existing];
+
+        uploadedResults.forEach(newItem => {
+          if (!all.some(item => item.car_id === newItem.car_id)) {
+            all.push(newItem);
+          }
         });
 
-        const contentType = response.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) {
-          const errorText = await response.text();
-          throw new Error("Non-JSON response: " + errorText);
-        }
+        localStorage.setItem("car_data_multi", JSON.stringify(all));
+        localStorage.setItem("car_id", all[0].car_id);
+        localStorage.setItem("car_data", JSON.stringify(all[0].data));
 
-        const result = await response.json();
-        const results = result.results || [];
-
-        if (results.length === 0) {
-          alert("❌ No results returned from backend.");
-          return;
-        }
-
-        // Save all to multi
-        localStorage.setItem("car_data_multi", JSON.stringify(results));
-        // Default to first one
-        localStorage.setItem("car_id", results[0].car_id);
-        localStorage.setItem("car_data", JSON.stringify(results[0].data));
-
-        statusEls.forEach((el, i) => el.textContent = `✅ ${carIds[i]} uploaded`);
         setTimeout(() => {
           window.location.href = "extractreview.html";
-        }, 1500);
-
-      } catch (err) {
-        statusEls.forEach(el => el.textContent = "❌ Upload failed");
-        alert("❌ Error: " + err.message);
+        }, 1000);
+      } else {
+        alert("No CARs successfully uploaded.");
       }
     }
 
-    // Add initial form on load
     window.onload = addUploadForm;
   </script>
 </body>
