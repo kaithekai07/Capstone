@@ -120,9 +120,13 @@
 </head>
 <body>
 <header>
-  <div class="logo">
-    <img src="safesight.jpg" alt="Safesight AI Logo">
-    <strong>Safesight AI</strong>
+ <div class="modal" id="sectionModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span>CAR Report Sections</span>
+      <span class="close-btn" onclick="document.getElementById('sectionModal').style.display='none'">&times;</span>
+    </div>
+    <pre id="modalBody"></pre>
   </div>
   <nav>
     <a href="safesightai.html">Home</a>
@@ -159,16 +163,17 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 
+const supabase = createClient(
+  'https://nfcgehfenpjqrijxgzio.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDI5ODEsImV4cCI6MjA2NjMxODk4MX0.HDUeDKvypdrxKeUVdHIgZ63EGYA-axlRgYZMsxL0exw'
+);
 
-  const supabase = createClient(
-    'https://nfcgehfenpjqrijxgzio.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mY2dlaGZlbnBqcXJpanhnemlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3NDI5ODEsImV4cCI6MjA2NjMxODk4MX0.HDUeDKvypdrxKeUVdHIgZ63EGYA-axlRgYZMsxL0exw'
-  );
-
-  const tableName = 'car_reports';
+const tableName = 'car_reports';
 const tableBody = document.querySelector("#data-table tbody");
 const searchInput = document.getElementById("search");
 const addRowBtn = document.getElementById("add-row");
+const modal = document.getElementById('sectionModal');
+const modalBody = document.getElementById('modalBody');
 
 let allRows = [];
 
@@ -230,7 +235,7 @@ function renderRows(rows) {
     viewBtn.className = "view-btn";
     viewBtn.title = "View Sections";
     viewBtn.onclick = () => {
-      const content = JSON.stringify({
+      modalBody.textContent = JSON.stringify({
         section_a: row.section_a,
         section_b1: row.section_b1,
         section_b2: row.section_b2,
@@ -239,7 +244,7 @@ function renderRows(rows) {
         section_e1: row.section_e1,
         section_e2: row.section_e2
       }, null, 2);
-      alert(content);
+      modal.style.display = 'flex';
     };
     sectionTd.appendChild(viewBtn);
     tr.appendChild(sectionTd);
