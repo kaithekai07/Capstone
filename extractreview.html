@@ -18,7 +18,7 @@
       height: 100vh;
     }
     .sidebar {
-      width: 200px;
+      width: 220px;
       background: #e0e0e0;
       padding: 1rem;
       display: flex;
@@ -72,7 +72,7 @@
     tr:nth-child(even) td {
       background-color: #f9f9f9;
     }
-    input {
+    input, select {
       width: 100%;
       padding: 8px 10px;
       font-size: 14px;
@@ -80,7 +80,7 @@
       background-color: transparent;
       box-sizing: border-box;
     }
-    input:focus {
+    input:focus, select:focus {
       outline: none;
       background-color: #eef2ff;
     }
@@ -94,9 +94,7 @@
       box-sizing: border-box;
       resize: none;
       line-height: 1.4;
-      overflow-wrap: break-word;
       white-space: pre-wrap;
-      height: auto;
       min-height: 60px;
     }
     textarea.answer-column:focus {
@@ -106,6 +104,9 @@
     .status {
       margin-top: 1rem;
       font-size: 14px;
+    }
+    .car-dropdown {
+      margin-bottom: 1rem;
     }
   </style>
 </head>
@@ -118,53 +119,72 @@
       const [section, setSection] = React.useState("Section_C");
       const [status, setStatus] = React.useState("");
       const [loading, setLoading] = React.useState(false);
+      const [allCARs, setAllCARs] = React.useState([]);
+      const [selectedCarId, setSelectedCarId] = React.useState("");
 
       React.useEffect(() => {
-        const raw = localStorage.getItem("car_data");
-        const carId = localStorage.getItem("car_id");
-
-        if (!raw || raw === "{}" || !carId) {
-          alert("❌ No CAR data found. Please upload a CAR file first.");
+        const rawList = localStorage.getItem("car_data_multi");
+        if (!rawList) {
+          alert("❌ No CAR data found. Please upload first.");
           window.location.href = "upload.html";
           return;
         }
 
-        try {
-          const parsed = JSON.parse(raw);
-          if (Object.keys(parsed).length === 0) {
-            alert("❌ CAR data appears to be empty.");
-            window.location.href = "upload.html";
-          } else {
-            setData(parsed);
-          }
-        } catch (e) {
-          alert("❌ Failed to read saved CAR data.");
-          console.error("JSON parse error:", e);
+        const parsed = JSON.parse(rawList);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          alert("❌ CAR data is empty.");
           window.location.href = "upload.html";
+        } else {
+          setAllCARs(parsed);
+          setSelectedCarId(parsed[0].car_id);
+          setData(parsed[0].data);
         }
       }, []);
 
+      const handleSelectChange = (e) => {
+        const cid = e.target.value;
+        const found = allCARs.find((car) => car.car_id === cid);
+        if (found) {
+          setSelectedCarId(cid);
+          setData(found.data);
+          setStatus("");
+        }
+      };
+
       const handleChange = (sec, idx, key, val) => {
-        const updated = { ...data };
-        updated[sec][idx][key] = val;
-        setData(updated);
+        const updatedData = { ...data };
+        updatedData[sec][idx][key] = val;
+        setData(updatedData);
+
+        const updatedList = allCARs.map((car) =>
+          car.car_id === selectedCarId ? { ...car, data: updatedData } : car
+        );
+        setAllCARs(updatedList);
+        localStorage.setItem("car_data_multi", JSON.stringify(updatedList));
       };
 
       const handleSubmit = async () => {
         setLoading(true);
         setStatus("Submitting...");
         try {
-          const carId = localStorage.getItem("car_id");
           const res = await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ car_id: carId, data })
+            body: JSON.stringify({ car_id: selectedCarId, data })
           });
           const result = await res.json();
           if (result.status && result.status.includes("✅")) {
-            localStorage.removeItem("car_data");
-            localStorage.removeItem("car_id");
-            window.location.href = "thankyou.html";
+            const updatedList = allCARs.filter((car) => car.car_id !== selectedCarId);
+            localStorage.setItem("car_data_multi", JSON.stringify(updatedList));
+            if (updatedList.length === 0) {
+              window.location.href = "thankyou.html";
+            } else {
+              alert(`✅ ${selectedCarId} submitted.`);
+              setAllCARs(updatedList);
+              setSelectedCarId(updatedList[0].car_id);
+              setData(updatedList[0].data);
+              setStatus("");
+            }
           } else {
             setStatus(result.error || "Submission failed.");
           }
@@ -172,6 +192,24 @@
           setStatus("❌ " + err.message);
         } finally {
           setLoading(false);
+        }
+      };
+
+      const handleDelete = () => {
+        if (!confirm(`Are you sure you want to delete CAR: ${selectedCarId}?`)) return;
+
+        const updatedList = allCARs.filter((c) => c.car_id !== selectedCarId);
+        localStorage.setItem("car_data_multi", JSON.stringify(updatedList));
+
+        if (updatedList.length === 0) {
+          alert("🗑️ All CARs deleted. Redirecting.");
+          window.location.href = "thankyou.html";
+        } else {
+          alert(`🗑️ ${selectedCarId} removed.`);
+          setAllCARs(updatedList);
+          setSelectedCarId(updatedList[0].car_id);
+          setData(updatedList[0].data);
+          setStatus("");
         }
       };
 
@@ -188,6 +226,14 @@
       return (
         <div className="container">
           <div className="sidebar">
+            <div className="car-dropdown">
+              <strong>Selected CAR:</strong>
+              <select value={selectedCarId} onChange={handleSelectChange}>
+                {allCARs.map((car) => (
+                  <option key={car.car_id} value={car.car_id}>{car.car_id}</option>
+                ))}
+              </select>
+            </div>
             {Object.keys(sectionLabels).map((key) => (
               <button
                 key={key}
@@ -199,6 +245,14 @@
             ))}
             <button className="submit-btn" onClick={handleSubmit} disabled={loading}>
               ✅ Submit
+            </button>
+            <button
+              className="submit-btn"
+              style={{ backgroundColor: "#dc3545", marginTop: "0.5rem" }}
+              onClick={handleDelete}
+              disabled={loading}
+            >
+              🗑️ Delete
             </button>
             {status && <p className="status">{status}</p>}
           </div>
@@ -287,5 +341,6 @@
   </script>
 </body>
 </html>
+
 
 
