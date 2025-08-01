@@ -131,7 +131,7 @@
 <body>
   <div class="form-container">
     <h2>Upload CAR</h2>
-    <form id="uploadForm" method="POST" enctype="multipart/form-data" action="https://capstone-backend-128c.onrender.com/analyze">
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
       <label for="car-id">CAR ID</label>
       <input type="text" id="car-id" name="carId" placeholder="Enter CAR ID" required />
 
@@ -143,7 +143,7 @@
 
       <div class="file-upload">
         <div>📄</div>
-        <p>Drag and drop a file here or click the button to upload</p>
+        <p>Drag and drop file(s) here or click to upload</p>
         <input type="file" id="car-file" name="file" accept=".pdf" multiple required />
       </div>
 
@@ -170,7 +170,7 @@
     e.preventDefault();
     reportDiv.style.display = "block";
     loader.style.display = "block";
-    status.innerText = "🔄 Uploading and extracting PDF...";
+    status.innerText = "🔄 Uploading and extracting PDF(s)...";
 
     const formData = new FormData(form);
 
@@ -192,14 +192,17 @@
 
       loader.style.display = "none";
 
-      // Save multi-CAR data
-      localStorage.setItem("car_data", JSON.stringify(result.results || []));
-      localStorage.setItem("car_id", formData.get("carId"));
-
-      status.innerText = "✅ Extraction complete. Redirecting...";
-      setTimeout(() => {
-        window.location.href = "extractreview.html";
-      }, 1500);
+      // Save array of multiple results
+      if (result.results && result.results.length > 0) {
+        localStorage.setItem("car_data_multi", JSON.stringify(result.results));
+        localStorage.setItem("car_id", result.results[0].car_id); // default selection
+        status.innerText = "✅ Uploaded! Redirecting...";
+        setTimeout(() => {
+          window.location.href = "extractreview.html";
+        }, 1500);
+      } else {
+        status.innerText = "❌ No results returned.";
+      }
 
     } catch (err) {
       loader.style.display = "none";
