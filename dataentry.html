@@ -8,7 +8,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', sans-serif;
       background-color: #174978;
       color: #ffffff;
       min-height: 100vh;
@@ -26,7 +26,7 @@
       gap: 0.5rem;
     }
     .logo img { height: 35px; width: auto; }
-    .logo strong { font-size: 1.2rem; font-weight: bold; color: #ffffff; }
+    .logo strong { font-size: 1.2rem; color: #ffffff; }
     nav a, nav button {
       color: white;
       margin-left: 1.5rem;
@@ -59,6 +59,14 @@
       border: 1px solid #ccc;
       color: #000;
     }
+    .badge {
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-weight: bold;
+      color: white;
+    }
+    .green { background-color: #28a745; }
+    .red { background-color: #dc3545; }
     .table-wrapper {
       overflow-x: auto;
       background: #ffffff;
@@ -79,21 +87,9 @@
       font-size: 0.95rem;
       color: #000;
     }
-    th {
-      background-color: #092036;
-      color: white;
-    }
+    th { background-color: #092036; color: white; }
     tr:hover { background-color: #e6f7ff; }
-    td[contenteditable="true"] { background-color: #f0f9ff; cursor: text; }
-    td:focus { outline: 2px solid #00bfa5; }
-    .delete-btn {
-      color: red;
-      cursor: pointer;
-      font-weight: bold;
-      border: none;
-      background: none;
-    }
-    .view-btn {
+    .delete-btn, .view-btn, .refresh-btn {
       background: #008cff;
       color: white;
       border: none;
@@ -101,13 +97,7 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    .status-circle {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 6px;
-    }
+    .delete-btn { background-color: red; }
     footer {
       background-color: #0a2540;
       color: white;
@@ -124,21 +114,11 @@
       border-radius: 8px;
       font-weight: bold;
       z-index: 9999;
-      animation: fadein 0.3s ease, fadeout 0.3s ease 2.7s;
     }
     .toast.error { background-color: #ff4444; }
-    @keyframes fadein {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeout {
-      from { opacity: 1; transform: translateY(0); }
-      to { opacity: 0; transform: translateY(20px); }
-    }
   </style>
 </head>
 <body>
-
 <header>
   <div class="logo">
     <img src="safesight.jpg" alt="Safesight AI Logo">
@@ -153,16 +133,12 @@
     <button onclick="logout()">Logout</button>
   </nav>
 </header>
-
 <h1>CAR Reports Table</h1>
-
 <div class="controls">
   <input type="text" id="search" placeholder="🔍 Search CAR ID..." />
-  <input type="date" id="start-date" />
-  <input type="date" id="end-date" />
+  <button onclick="fetchData()" class="refresh-btn">🔁 Refresh</button>
   <button id="add-row">➕ Add New Report</button>
 </div>
-
 <div class="table-wrapper">
   <table id="data-table">
     <thead>
@@ -176,14 +152,13 @@
     <tbody></tbody>
   </table>
 </div>
-
 <footer>
   © 2025 Safesight AI. All rights reserved.
 </footer>
-
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-  import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+
 
   const supabase = createClient(
     'https://nfcgehfenpjqrijxgzio.supabase.co',
@@ -191,137 +166,134 @@
   );
 
   const tableName = 'car_reports';
-  const tableBody = document.querySelector("#data-table tbody");
-  const searchInput = document.getElementById("search");
-  const startDateInput = document.getElementById("start-date");
-  const endDateInput = document.getElementById("end-date");
-  const addRowBtn = document.getElementById("add-row");
+const tableBody = document.querySelector("#data-table tbody");
+const searchInput = document.getElementById("search");
+const addRowBtn = document.getElementById("add-row");
 
-  let allRows = [];
+let allRows = [];
 
-  function showToast(message, type = "success") {
-    const toast = document.createElement("div");
-    toast.className = `toast ${type === "error" ? "error" : ""}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  }
+function showToast(message, type = "success") {
+  const toast = document.createElement("div");
+  toast.className = `toast ${type === "error" ? "error" : ""}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
 
-  async function fetchData() {
-    const { data, error } = await supabase.from(tableName).select("*");
-    if (error) return console.error("Fetch error:", error);
-    allRows = data;
-    applyFilters();
-  }
+async function fetchData() {
+  const { data, error } = await supabase.from(tableName).select("*");
+  if (error) return console.error("Fetch error:", error);
+  allRows = data;
+  applyFilters();
+}
 
-  function renderRows(rows) {
-    tableBody.innerHTML = "";
-    rows.forEach(row => {
-      const tr = document.createElement("tr");
+function renderRows(rows) {
+  tableBody.innerHTML = "";
+  rows.forEach(row => {
+    const tr = document.createElement("tr");
 
-      const idTd = document.createElement("td");
-      idTd.textContent = row.car_id;
-      tr.appendChild(idTd);
-
-      const statusTd = document.createElement("td");
-      const circle = document.createElement("span");
-      circle.className = "status-circle";
-      circle.style.backgroundColor = row.submitted ? "green" : "red";
-      const label = document.createElement("span");
-      label.textContent = row.submitted ? "Submitted" : "Not Submitted";
-      statusTd.appendChild(circle);
-      statusTd.appendChild(label);
-      tr.appendChild(statusTd);
-
-      const sectionTd = document.createElement("td");
-      const viewBtn = document.createElement("button");
-      viewBtn.textContent = "👁️";
-      viewBtn.className = "view-btn";
-      viewBtn.onclick = () => {
-        alert(JSON.stringify({
-          section_a: row.section_a,
-          section_b1: row.section_b1,
-          section_b2: row.section_b2,
-          section_c: row.section_c,
-          section_d: row.section_d,
-          section_e1: row.section_e1,
-          section_e2: row.section_e2
-        }, null, 2));
-      };
-      sectionTd.appendChild(viewBtn);
-      tr.appendChild(sectionTd);
-
-      const delTd = document.createElement("td");
-      const btn = document.createElement("button");
-      btn.textContent = "🗑️";
-      btn.className = "delete-btn";
-      btn.onclick = () => deleteRow(row.car_id);
-      delTd.appendChild(btn);
-      tr.appendChild(delTd);
-
-      tableBody.appendChild(tr);
-    });
-  }
-
-  async function deleteRow(id) {
-    if (!confirm("Delete this report?")) return;
-    const { error } = await supabase.from(tableName).delete().eq("car_id", id);
-    if (!error) {
-      allRows = allRows.filter(row => row.car_id !== id);
-      applyFilters();
-      showToast("Report deleted 🗑️");
-    } else {
-      showToast("Delete failed ❌", "error");
-    }
-  }
-
-  addRowBtn.addEventListener("click", async () => {
-    const newId = uuidv4();
-    const newRow = {
-      car_id: newId,
-      section_a: {},
-      section_b1: {},
-      section_b2: {},
-      section_c: {},
-      section_d: {},
-      section_e1: {},
-      section_e2: {},
-      submitted: false
+    const idTd = document.createElement("td");
+    idTd.textContent = row.car_id;
+    idTd.contentEditable = true;
+    idTd.onblur = async () => {
+      const newId = idTd.textContent.trim();
+      if (newId !== row.car_id) {
+        const { error } = await supabase
+          .from(tableName)
+          .update({ car_id: newId })
+          .eq("car_id", row.car_id);
+        if (!error) showToast("CAR ID updated");
+      }
     };
-    const { error } = await supabase.from(tableName).insert(newRow);
-    if (!error) {
-      allRows.push(newRow);
-      applyFilters();
-      showToast("New report created ✅");
-    } else {
-      showToast("Insert failed ❌", "error");
-    }
-  });
+    tr.appendChild(idTd);
 
+    const statusTd = document.createElement("td");
+    const status = document.createElement("span");
+    status.className = `badge ${row.submitted ? 'green' : 'red'}`;
+    status.textContent = row.submitted ? "✔" : "⨯";
+    status.style.cursor = "pointer";
+    status.onclick = async () => {
+      const newStatus = !row.submitted;
+      const { error } = await supabase.from(tableName).update({ submitted: newStatus }).eq('car_id', row.car_id);
+      if (!error) {
+        row.submitted = newStatus;
+        fetchData();
+        showToast("Status toggled");
+      }
+    };
+    statusTd.appendChild(status);
+    tr.appendChild(statusTd);
+
+    const sectionTd = document.createElement("td");
+    const viewBtn = document.createElement("button");
+    viewBtn.textContent = "👁️";
+    viewBtn.className = "view-btn";
+    viewBtn.title = "View Sections";
+    viewBtn.onclick = () => {
+      const content = JSON.stringify({
+        section_a: row.section_a,
+        section_b1: row.section_b1,
+        section_b2: row.section_b2,
+        section_c: row.section_c,
+        section_d: row.section_d,
+        section_e1: row.section_e1,
+        section_e2: row.section_e2
+      }, null, 2);
+      alert(content);
+    };
+    sectionTd.appendChild(viewBtn);
+    tr.appendChild(sectionTd);
+
+    const delTd = document.createElement("td");
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "🗑️";
+    delBtn.className = "delete-btn";
+    delBtn.onclick = async () => {
+      if (confirm("Delete this report?")) {
+        const { error } = await supabase.from(tableName).delete().eq("car_id", row.car_id);
+        if (!error) {
+          allRows = allRows.filter(r => r.car_id !== row.car_id);
+          applyFilters();
+          showToast("Report deleted");
+        }
+      }
+    };
+    delTd.appendChild(delBtn);
+    tr.appendChild(delTd);
+
+    tableBody.appendChild(tr);
+  });
+}
 
 function applyFilters() {
   const term = searchInput.value.toLowerCase();
-
-  const filtered = allRows.filter(row => {
-    const matchesSearch = row.car_id?.toLowerCase().includes(term);
-    return matchesSearch;
-  });
-
+  const filtered = allRows.filter(row => row.car_id?.toLowerCase().includes(term));
   renderRows(filtered);
 }
 
-
-  searchInput.addEventListener("input", applyFilters);
-  startDateInput.addEventListener("change", applyFilters);
-  endDateInput.addEventListener("change", applyFilters);
-
-  fetchData();
-
-  window.logout = async function () {
-    await supabase.auth.signOut();
-    window.location.href = "index.html";
+addRowBtn.addEventListener("click", async () => {
+  const newId = uuidv4();
+  const newRow = {
+    car_id: newId,
+    section_a: {}, section_b1: {}, section_b2: {},
+    section_c: {}, section_d: {}, section_e1: {}, section_e2: {},
+    submitted: false
+  };
+  const { error } = await supabase.from(tableName).insert(newRow);
+  if (!error) {
+    allRows.push(newRow);
+    applyFilters();
+    showToast("New report created");
   }
+});
+
+searchInput.addEventListener("input", applyFilters);
+fetchData();
+
+window.logout = async function () {
+  await supabase.auth.signOut();
+  window.location.href = "index.html";
+};
 </script>
 </body>
 </html>
-
