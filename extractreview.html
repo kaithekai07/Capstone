@@ -84,6 +84,7 @@
     td {
       padding: 0;
       border: 1px solid #ddd;
+      vertical-align: top;
     }
 
     tr:nth-child(even) td {
@@ -95,6 +96,9 @@
       padding: 8px;
       border: none;
       background: transparent;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     input:focus {
@@ -102,7 +106,8 @@
       background-color: #eef2ff;
     }
 
-    textarea.answer-column {
+    textarea.answer-column,
+    textarea.causal-column {
       width: 100%;
       padding: 8px;
       font-size: 14px;
@@ -113,9 +118,11 @@
       min-height: 60px;
       overflow-wrap: break-word;
       white-space: pre-wrap;
+      word-wrap: break-word;
+      word-break: break-word;
     }
 
-    textarea.answer-column:focus {
+    textarea:focus {
       outline: none;
       background-color: #eef2ff;
     }
@@ -255,14 +262,14 @@
             {currentData[section]?.length > 0 ? (
               section === "Section_C" ? (
                 <table>
-                      <colgroup>
-      <col style={{ width: "9%" }} />
-      <col style={{ width: "10%" }} />
-      <col style={{ width: "12%" }} />
-      <col style={{ width: "7%" }} />
-      <col style={{ width: "18%" }} />
-      <col style={{ width: "44%" }} />
-    </colgroup>
+                  <colgroup>
+                    <col style={{ width: "9%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "7%" }} />
+                    <col style={{ width: "18%" }} />
+                    <col style={{ width: "44%" }} />
+                  </colgroup>
                   <thead>
                     <tr>
                       <th>CAR NO.</th>
@@ -280,7 +287,13 @@
                         <td><input value={row["ID NO. SEC C"]} onChange={(e) => handleChange(section, idx, "ID NO. SEC C", e.target.value)} /></td>
                         <td><input value={row["ID NO. SEC A"]} onChange={(e) => handleChange(section, idx, "ID NO. SEC A", e.target.value)} /></td>
                         <td><input value={row["WHY"]} onChange={(e) => handleChange(section, idx, "WHY", e.target.value)} /></td>
-                        <td><input value={row["CAUSAL FACTOR"]} onChange={(e) => handleChange(section, idx, "CAUSAL FACTOR", e.target.value)} /></td>
+                        <td>
+                          <textarea
+                            className="causal-column"
+                            value={row["CAUSAL FACTOR"]}
+                            onChange={(e) => handleChange(section, idx, "CAUSAL FACTOR", e.target.value)}
+                          ></textarea>
+                        </td>
                         <td>
                           <textarea
                             className="answer-column"
