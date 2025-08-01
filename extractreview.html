@@ -4,68 +4,65 @@
   <meta charset="UTF-8" />
   <title>Review CAR Data</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     body {
       margin: 0;
       font-family: sans-serif;
       background-color: #f5f5f5;
     }
-
     .container {
       display: flex;
       height: 100vh;
+      overflow: hidden;
     }
-
     .sidebar {
-      width: 220px;
+      width: 250px;
       background: #e0e0e0;
       padding: 1rem;
       display: flex;
       flex-direction: column;
     }
-
-    .sidebar select {
+    .dropdown {
       margin-bottom: 1rem;
+    }
+    select {
+      width: 100%;
       padding: 0.5rem;
       font-size: 1rem;
     }
-
     .sidebar button {
-      margin-top: 0.5rem;
-      padding: 0.6rem;
+      background: none;
       border: none;
+      padding: 0.5rem;
+      margin-bottom: 0.25rem;
+      text-align: left;
       cursor: pointer;
-      border-radius: 5px;
-      font-size: 0.9rem;
     }
-
-    .submit-btn {
-      background-color: #2563eb;
+    .sidebar button.active {
+      background: #007acc;
       color: white;
     }
-
-    .delete-btn {
-      background-color: #dc2626;
+    .sidebar button.submit-btn {
+      margin-top: auto;
+      background: #28a745;
       color: white;
     }
-
+    .sidebar button.delete-btn {
+      background: #dc3545;
+      color: white;
+    }
     .content {
       flex: 1;
       padding: 1rem;
       overflow-y: auto;
       background: white;
     }
-
     table {
       width: 100%;
       table-layout: fixed;
       border-collapse: collapse;
       font-size: 14px;
     }
-
     th {
       background-color: #071d49;
       color: white;
@@ -73,44 +70,28 @@
       text-align: left;
       border: 1px solid #ddd;
     }
-
     td {
-      border: 1px solid #ddd;
       padding: 0;
+      border: 1px solid #ddd;
+      vertical-align: top;
     }
-
     input, textarea {
       width: 100%;
-      padding: 8px;
-      border: none;
+      padding: 8px 10px;
       font-size: 14px;
+      border: none;
       background-color: transparent;
       box-sizing: border-box;
     }
-
     input:focus, textarea:focus {
       outline: none;
       background-color: #eef2ff;
     }
-
     textarea {
-      resize: vertical;
+      resize: none;
       min-height: 60px;
+      white-space: pre-wrap;
     }
-
-    .section-btn {
-      background: none;
-      border: none;
-      text-align: left;
-      padding: 0.5rem;
-      cursor: pointer;
-    }
-
-    .section-btn.active {
-      font-weight: bold;
-      color: #2563eb;
-    }
-
     .status {
       margin-top: 1rem;
       font-size: 14px;
@@ -118,203 +99,156 @@
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div class="container">
+    <div class="sidebar">
+      <div class="dropdown">
+        <select id="carSelector" onchange="changeCar()"></select>
+      </div>
+      <div id="sectionButtons"></div>
+      <button class="submit-btn" onclick="submitCar()">✅ Submit</button>
+      <button class="delete-btn" onclick="deleteCar()">🗑️ Delete</button>
+      <p id="status" class="status"></p>
+    </div>
+    <div class="content">
+      <h3 id="sectionTitle">Loading...</h3>
+      <div id="tableContainer"></div>
+    </div>
+  </div>
 
-  <script type="text/babel">
-    function ExtractReview() {
-      const [multiData, setMultiData] = React.useState([]);
-      const [selectedCarId, setSelectedCarId] = React.useState("");
-      const [data, setData] = React.useState({});
-      const [section, setSection] = React.useState("Section_C");
-      const [status, setStatus] = React.useState("");
-      const [loading, setLoading] = React.useState(false);
+  <script>
+    const sectionLabels = {
+      Section_A: "General Info",
+      Section_B1: "Chronology",
+      Section_B2: "Cost Impact",
+      Section_C: "Root Cause (5Why)",
+      Section_D: "Correction Taken",
+      Section_E1: "Corrective Action",
+      Section_E2: "Conclusion Review"
+    };
 
-      React.useEffect(() => {
-        const rawMulti = localStorage.getItem("car_data_multi");
+    let carDataMulti = JSON.parse(localStorage.getItem("car_data_multi") || "[]");
+    let selectedCarId = localStorage.getItem("car_id") || "";
+    let currentData = {};
+    let currentSection = "Section_C";
 
-        if (!rawMulti) {
-          alert("❌ No CAR data found. Please upload at least one CAR.");
-          window.location.href = "upload.html";
-          return;
-        }
-
-        const parsed = JSON.parse(rawMulti);
-        setMultiData(parsed);
-
-        // Load first one by default
-        const first = parsed[0];
-        setSelectedCarId(first.car_id);
-        setData(first.data);
-        localStorage.setItem("car_id", first.car_id);
-        localStorage.setItem("car_data", JSON.stringify(first.data));
-      }, []);
-
-      const handleCarChange = (e) => {
-        const id = e.target.value;
-        setSelectedCarId(id);
-        const found = multiData.find(car => car.car_id === id);
-        if (found) {
-          setData(found.data);
-          localStorage.setItem("car_id", found.car_id);
-          localStorage.setItem("car_data", JSON.stringify(found.data));
-        }
-      };
-
-      const handleChange = (sec, idx, key, val) => {
-        const updated = { ...data };
-        updated[sec][idx][key] = val;
-        setData(updated);
-
-        const newMulti = multiData.map(car => {
-          if (car.car_id === selectedCarId) {
-            return { ...car, data: updated };
-          }
-          return car;
-        });
-        setMultiData(newMulti);
-        localStorage.setItem("car_data_multi", JSON.stringify(newMulti));
-        localStorage.setItem("car_data", JSON.stringify(updated));
-      };
-
-      const handleSubmit = async () => {
-        setLoading(true);
-        setStatus("Submitting...");
-        try {
-          const res = await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ car_id: selectedCarId, data })
-          });
-          const result = await res.json();
-          if (result.status?.includes("✅")) {
-            setStatus("✅ Submission complete!");
-            localStorage.removeItem("car_data");
-            localStorage.removeItem("car_id");
-            const remaining = multiData.filter(car => car.car_id !== selectedCarId);
-            if (remaining.length === 0) {
-              localStorage.removeItem("car_data_multi");
-              window.location.href = "thankyou.html";
-            } else {
-              localStorage.setItem("car_data_multi", JSON.stringify(remaining));
-              setMultiData(remaining);
-              setSelectedCarId(remaining[0].car_id);
-              setData(remaining[0].data);
-            }
-          } else {
-            setStatus(result.error || "Submission failed.");
-          }
-        } catch (err) {
-          setStatus("❌ " + err.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      const handleDelete = () => {
-        const filtered = multiData.filter(car => car.car_id !== selectedCarId);
-        if (filtered.length === 0) {
-          localStorage.removeItem("car_data_multi");
-          localStorage.removeItem("car_data");
-          localStorage.removeItem("car_id");
-          window.location.href = "upload.html";
-        } else {
-          setMultiData(filtered);
-          setSelectedCarId(filtered[0].car_id);
-          setData(filtered[0].data);
-          localStorage.setItem("car_data_multi", JSON.stringify(filtered));
-          localStorage.setItem("car_id", filtered[0].car_id);
-          localStorage.setItem("car_data", JSON.stringify(filtered[0].data));
-        }
-      };
-
-      const sectionLabels = {
-        Section_A: "General Info",
-        Section_B1: "Chronology",
-        Section_B2: "Cost Impact",
-        Section_C: "Root Cause (5Why)",
-        Section_D: "Correction Taken",
-        Section_E1: "Corrective Action",
-        Section_E2: "Conclusion Review"
-      };
-
-      return (
-        <div className="container">
-          <div className="sidebar">
-            <select value={selectedCarId} onChange={handleCarChange}>
-              {multiData.map((car) => (
-                <option key={car.car_id} value={car.car_id}>
-                  {car.car_id}
-                </option>
-              ))}
-            </select>
-
-            {Object.entries(sectionLabels).map(([sec, label]) => (
-              <button
-                key={sec}
-                className={`section-btn ${section === sec ? "active" : ""}`}
-                onClick={() => setSection(sec)}
-              >
-                {label}
-              </button>
-            ))}
-
-            <button className="submit-btn" onClick={handleSubmit} disabled={loading}>
-              ✅ Submit
-            </button>
-            <button className="delete-btn" onClick={handleDelete}>
-              🗑️ Delete
-            </button>
-
-            {status && <p className="status">{status}</p>}
-          </div>
-
-          <div className="content">
-            <h3>{sectionLabels[section]}</h3>
-            {data[section]?.length > 0 ? (
-              <table>
-                <thead>
-                  <tr>
-                    {Object.keys(data[section][0]).map((field) => (
-                      <th key={field}>{field}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {data[section].map((record, rowIdx) => (
-                    <tr key={rowIdx}>
-                      {Object.entries(record).map(([key, val]) => (
-                        <td key={key}>
-                          {key === "ANSWER" ? (
-                            <textarea
-                              value={val}
-                              onChange={(e) =>
-                                handleChange(section, rowIdx, key, e.target.value)
-                              }
-                            />
-                          ) : (
-                            <input
-                              value={val}
-                              onChange={(e) =>
-                                handleChange(section, rowIdx, key, e.target.value)
-                              }
-                            />
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No data found for this section.</p>
-            )}
-          </div>
-        </div>
-      );
+    function loadDropdown() {
+      const dropdown = document.getElementById("carSelector");
+      dropdown.innerHTML = "";
+      carDataMulti.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.car_id;
+        option.textContent = item.car_id;
+        if (item.car_id === selectedCarId) option.selected = true;
+        dropdown.appendChild(option);
+      });
     }
 
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(<ExtractReview />);
+    function changeCar() {
+      selectedCarId = document.getElementById("carSelector").value;
+      localStorage.setItem("car_id", selectedCarId);
+      const found = carDataMulti.find(c => c.car_id === selectedCarId);
+      if (found) {
+        currentData = found.data;
+        localStorage.setItem("car_data", JSON.stringify(currentData));
+        loadSectionButtons();
+        renderSection(currentSection);
+      }
+    }
+
+    function loadSectionButtons() {
+      const sectionBtnWrap = document.getElementById("sectionButtons");
+      sectionBtnWrap.innerHTML = "";
+      for (const key in sectionLabels) {
+        const btn = document.createElement("button");
+        btn.textContent = sectionLabels[key];
+        btn.className = (key === currentSection ? "active" : "");
+        btn.onclick = () => {
+          currentSection = key;
+          renderSection(currentSection);
+          loadSectionButtons();
+        };
+        sectionBtnWrap.appendChild(btn);
+      }
+    }
+
+    function renderSection(section) {
+      document.getElementById("sectionTitle").textContent = sectionLabels[section];
+      const container = document.getElementById("tableContainer");
+      const rows = currentData[section];
+      if (!rows || rows.length === 0) {
+        container.innerHTML = `<p>No data found for ${section}.</p>`;
+        return;
+      }
+
+      const headers = Object.keys(rows[0]);
+      let html = `<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>`;
+
+      rows.forEach((row, rowIdx) => {
+        html += `<tr>`;
+        headers.forEach(h => {
+          html += `<td><input value="${row[h] || ""}" onchange="updateField('${section}', ${rowIdx}, '${h}', this.value)"></td>`;
+        });
+        html += `</tr>`;
+      });
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    }
+
+    function updateField(section, rowIdx, field, value) {
+      currentData[section][rowIdx][field] = value;
+      const carIdx = carDataMulti.findIndex(c => c.car_id === selectedCarId);
+      if (carIdx !== -1) carDataMulti[carIdx].data = currentData;
+      localStorage.setItem("car_data_multi", JSON.stringify(carDataMulti));
+      localStorage.setItem("car_data", JSON.stringify(currentData));
+    }
+
+    async function submitCar() {
+      document.getElementById("status").textContent = "Submitting...";
+      try {
+        const res = await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ car_id: selectedCarId, data: currentData })
+        });
+        const result = await res.json();
+        if (result.status) {
+          document.getElementById("status").textContent = "✅ Submitted!";
+        } else {
+          document.getElementById("status").textContent = result.error || "❌ Submission failed.";
+        }
+      } catch (err) {
+        document.getElementById("status").textContent = "❌ " + err.message;
+      }
+    }
+
+    function deleteCar() {
+      if (!confirm(`Are you sure you want to delete ${selectedCarId}?`)) return;
+      carDataMulti = carDataMulti.filter(c => c.car_id !== selectedCarId);
+      if (carDataMulti.length > 0) {
+        selectedCarId = carDataMulti[0].car_id;
+        currentData = carDataMulti[0].data;
+        localStorage.setItem("car_data_multi", JSON.stringify(carDataMulti));
+        localStorage.setItem("car_id", selectedCarId);
+        localStorage.setItem("car_data", JSON.stringify(currentData));
+      } else {
+        localStorage.removeItem("car_data_multi");
+        localStorage.removeItem("car_id");
+        localStorage.removeItem("car_data");
+      }
+      loadDropdown();
+      loadSectionButtons();
+      renderSection(currentSection);
+    }
+
+    // Init
+    window.onload = () => {
+      const found = carDataMulti.find(c => c.car_id === selectedCarId);
+      if (found) currentData = found.data;
+      loadDropdown();
+      loadSectionButtons();
+      renderSection(currentSection);
+    };
   </script>
 </body>
 </html>
+
