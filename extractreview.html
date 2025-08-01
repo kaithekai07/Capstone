@@ -4,32 +4,35 @@
   <meta charset="UTF-8" />
   <title>Review CAR Data</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     body {
       margin: 0;
       font-family: sans-serif;
       background-color: #f5f5f5;
     }
+
     .container {
       display: flex;
       height: 100vh;
-      overflow: hidden;
     }
+
     .sidebar {
-      width: 250px;
+      width: 220px;
       background: #e0e0e0;
       padding: 1rem;
       display: flex;
       flex-direction: column;
     }
-    .dropdown {
+
+    .sidebar select {
       margin-bottom: 1rem;
-    }
-    select {
-      width: 100%;
       padding: 0.5rem;
-      font-size: 1rem;
+      font-size: 14px;
     }
+
     .sidebar button {
       background: none;
       border: none;
@@ -38,31 +41,38 @@
       text-align: left;
       cursor: pointer;
     }
+
     .sidebar button.active {
       background: #007acc;
       color: white;
     }
-    .sidebar button.submit-btn {
-      margin-top: auto;
+
+    .submit-btn {
       background: #28a745;
       color: white;
+      margin-top: auto;
     }
-    .sidebar button.delete-btn {
+
+    .delete-btn {
       background: #dc3545;
       color: white;
+      margin-top: 0.5rem;
     }
+
     .content {
       flex: 1;
       padding: 1rem;
       overflow-y: auto;
       background: white;
     }
+
     table {
       width: 100%;
       table-layout: fixed;
       border-collapse: collapse;
       font-size: 14px;
     }
+
     th {
       background-color: #071d49;
       color: white;
@@ -70,28 +80,46 @@
       text-align: left;
       border: 1px solid #ddd;
     }
+
     td {
       padding: 0;
       border: 1px solid #ddd;
-      vertical-align: top;
     }
-    input, textarea {
+
+    tr:nth-child(even) td {
+      background-color: #f9f9f9;
+    }
+
+    input {
       width: 100%;
-      padding: 8px 10px;
-      font-size: 14px;
+      padding: 8px;
       border: none;
-      background-color: transparent;
-      box-sizing: border-box;
+      background: transparent;
     }
-    input:focus, textarea:focus {
+
+    input:focus {
       outline: none;
       background-color: #eef2ff;
     }
-    textarea {
+
+    textarea.answer-column {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      border: none;
+      background: transparent;
       resize: none;
       min-height: 60px;
+      overflow-wrap: break-word;
       white-space: pre-wrap;
     }
+
+    textarea.answer-column:focus {
+      outline: none;
+      background-color: #eef2ff;
+    }
+
     .status {
       margin-top: 1rem;
       font-size: 14px;
@@ -99,156 +127,202 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="sidebar">
-      <div class="dropdown">
-        <select id="carSelector" onchange="changeCar()"></select>
-      </div>
-      <div id="sectionButtons"></div>
-      <button class="submit-btn" onclick="submitCar()">✅ Submit</button>
-      <button class="delete-btn" onclick="deleteCar()">🗑️ Delete</button>
-      <p id="status" class="status"></p>
-    </div>
-    <div class="content">
-      <h3 id="sectionTitle">Loading...</h3>
-      <div id="tableContainer"></div>
-    </div>
-  </div>
+  <div id="root"></div>
 
-  <script>
-    const sectionLabels = {
-      Section_A: "General Info",
-      Section_B1: "Chronology",
-      Section_B2: "Cost Impact",
-      Section_C: "Root Cause (5Why)",
-      Section_D: "Correction Taken",
-      Section_E1: "Corrective Action",
-      Section_E2: "Conclusion Review"
-    };
+  <script type="text/babel">
+    function ExtractReview() {
+      const [carList, setCarList] = React.useState([]);
+      const [currentIndex, setCurrentIndex] = React.useState(0);
+      const [section, setSection] = React.useState("Section_C");
+      const [status, setStatus] = React.useState("");
+      const [loading, setLoading] = React.useState(false);
 
-    let carDataMulti = JSON.parse(localStorage.getItem("car_data_multi") || "[]");
-    let selectedCarId = localStorage.getItem("car_id") || "";
-    let currentData = {};
-    let currentSection = "Section_C";
-
-    function loadDropdown() {
-      const dropdown = document.getElementById("carSelector");
-      dropdown.innerHTML = "";
-      carDataMulti.forEach(item => {
-        const option = document.createElement("option");
-        option.value = item.car_id;
-        option.textContent = item.car_id;
-        if (item.car_id === selectedCarId) option.selected = true;
-        dropdown.appendChild(option);
-      });
-    }
-
-    function changeCar() {
-      selectedCarId = document.getElementById("carSelector").value;
-      localStorage.setItem("car_id", selectedCarId);
-      const found = carDataMulti.find(c => c.car_id === selectedCarId);
-      if (found) {
-        currentData = found.data;
-        localStorage.setItem("car_data", JSON.stringify(currentData));
-        loadSectionButtons();
-        renderSection(currentSection);
-      }
-    }
-
-    function loadSectionButtons() {
-      const sectionBtnWrap = document.getElementById("sectionButtons");
-      sectionBtnWrap.innerHTML = "";
-      for (const key in sectionLabels) {
-        const btn = document.createElement("button");
-        btn.textContent = sectionLabels[key];
-        btn.className = (key === currentSection ? "active" : "");
-        btn.onclick = () => {
-          currentSection = key;
-          renderSection(currentSection);
-          loadSectionButtons();
-        };
-        sectionBtnWrap.appendChild(btn);
-      }
-    }
-
-    function renderSection(section) {
-      document.getElementById("sectionTitle").textContent = sectionLabels[section];
-      const container = document.getElementById("tableContainer");
-      const rows = currentData[section];
-      if (!rows || rows.length === 0) {
-        container.innerHTML = `<p>No data found for ${section}.</p>`;
-        return;
-      }
-
-      const headers = Object.keys(rows[0]);
-      let html = `<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>`;
-
-      rows.forEach((row, rowIdx) => {
-        html += `<tr>`;
-        headers.forEach(h => {
-          html += `<td><input value="${row[h] || ""}" onchange="updateField('${section}', ${rowIdx}, '${h}', this.value)"></td>`;
-        });
-        html += `</tr>`;
-      });
-      html += `</tbody></table>`;
-      container.innerHTML = html;
-    }
-
-    function updateField(section, rowIdx, field, value) {
-      currentData[section][rowIdx][field] = value;
-      const carIdx = carDataMulti.findIndex(c => c.car_id === selectedCarId);
-      if (carIdx !== -1) carDataMulti[carIdx].data = currentData;
-      localStorage.setItem("car_data_multi", JSON.stringify(carDataMulti));
-      localStorage.setItem("car_data", JSON.stringify(currentData));
-    }
-
-    async function submitCar() {
-      document.getElementById("status").textContent = "Submitting...";
-      try {
-        const res = await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ car_id: selectedCarId, data: currentData })
-        });
-        const result = await res.json();
-        if (result.status) {
-          document.getElementById("status").textContent = "✅ Submitted!";
-        } else {
-          document.getElementById("status").textContent = result.error || "❌ Submission failed.";
+      React.useEffect(() => {
+        const raw = localStorage.getItem("car_data_multi");
+        if (!raw || raw === "[]") {
+          alert("❌ No CAR data found. Please upload first.");
+          window.location.href = "upload.html";
+          return;
         }
-      } catch (err) {
-        document.getElementById("status").textContent = "❌ " + err.message;
-      }
+
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed.length === 0) throw new Error("Empty array");
+          setCarList(parsed);
+        } catch (e) {
+          console.error("Parse error:", e);
+          alert("❌ Error loading CAR data.");
+          window.location.href = "upload.html";
+        }
+      }, []);
+
+      const handleChange = (sectionKey, idx, field, value) => {
+        const updatedList = [...carList];
+        updatedList[currentIndex].data[sectionKey][idx][field] = value;
+        setCarList(updatedList);
+      };
+
+      const handleSubmit = async () => {
+        setLoading(true);
+        setStatus("Submitting...");
+
+        try {
+          const car = carList[currentIndex];
+          const res = await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ car_id: car.car_id, data: car.data })
+          });
+          const result = await res.json();
+          if (result.status && result.status.includes("✅")) {
+            setStatus("✅ Submission complete!");
+          } else {
+            setStatus(result.error || "Submission failed.");
+          }
+        } catch (err) {
+          setStatus("❌ " + err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleDelete = () => {
+        if (!confirm("Are you sure you want to delete this CAR?")) return;
+
+        const updatedList = [...carList];
+        updatedList.splice(currentIndex, 1);
+
+        if (updatedList.length === 0) {
+          localStorage.removeItem("car_data_multi");
+          localStorage.removeItem("car_data");
+          localStorage.removeItem("car_id");
+          alert("All CARs removed.");
+          window.location.href = "upload.html";
+          return;
+        }
+
+        localStorage.setItem("car_data_multi", JSON.stringify(updatedList));
+        localStorage.setItem("car_data", JSON.stringify(updatedList[0].data));
+        localStorage.setItem("car_id", updatedList[0].car_id);
+        setCarList(updatedList);
+        setCurrentIndex(0);
+      };
+
+      const sectionLabels = {
+        Section_A: "General Info",
+        Section_B1: "Chronology",
+        Section_B2: "Cost Impact",
+        Section_C: "Root Cause (5Why)",
+        Section_D: "Correction Taken",
+        Section_E1: "Corrective Action",
+        Section_E2: "Conclusion Review"
+      };
+
+      const currentCar = carList[currentIndex];
+      const currentData = currentCar?.data || {};
+
+      return (
+        <div className="container">
+          <div className="sidebar">
+            <select value={currentIndex} onChange={(e) => setCurrentIndex(parseInt(e.target.value))}>
+              {carList.map((car, idx) => (
+                <option key={idx} value={idx}>
+                  {car.car_id}
+                </option>
+              ))}
+            </select>
+
+            {Object.keys(sectionLabels).map((key) => (
+              <button
+                key={key}
+                className={section === key ? "active" : ""}
+                onClick={() => setSection(key)}
+              >
+                {sectionLabels[key]}
+              </button>
+            ))}
+
+            <button className="submit-btn" onClick={handleSubmit} disabled={loading}>
+              ✅ Submit
+            </button>
+            <button className="delete-btn" onClick={handleDelete}>🗑️ Delete</button>
+
+            {status && <p className="status">{status}</p>}
+          </div>
+
+          <div className="content">
+            <h3>{sectionLabels[section]}</h3>
+            {currentData[section]?.length > 0 ? (
+              section === "Section_C" ? (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>CAR NO.</th>
+                      <th>ID NO. SEC C</th>
+                      <th>ID NO. SEC A</th>
+                      <th>WHY</th>
+                      <th>CAUSAL FACTOR</th>
+                      <th>ANSWER</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentData[section].map((row, idx) => (
+                      <tr key={idx}>
+                        <td><input value={row["CAR NO."]} onChange={(e) => handleChange(section, idx, "CAR NO.", e.target.value)} /></td>
+                        <td><input value={row["ID NO. SEC C"]} onChange={(e) => handleChange(section, idx, "ID NO. SEC C", e.target.value)} /></td>
+                        <td><input value={row["ID NO. SEC A"]} onChange={(e) => handleChange(section, idx, "ID NO. SEC A", e.target.value)} /></td>
+                        <td><input value={row["WHY"]} onChange={(e) => handleChange(section, idx, "WHY", e.target.value)} /></td>
+                        <td><input value={row["CAUSAL FACTOR"]} onChange={(e) => handleChange(section, idx, "CAUSAL FACTOR", e.target.value)} /></td>
+                        <td>
+                          <textarea
+                            className="answer-column"
+                            value={row["ANSWER"]}
+                            onChange={(e) => handleChange(section, idx, "ANSWER", e.target.value)}
+                          ></textarea>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <table>
+                  <thead>
+                    <tr>
+                      {Object.keys(currentData[section][0]).map((field) => (
+                        <th key={field}>{field}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentData[section].map((record, rowIdx) => (
+                      <tr key={rowIdx}>
+                        {Object.entries(record).map(([key, val]) => (
+                          <td key={key}>
+                            <input
+                              value={val}
+                              onChange={(e) =>
+                                handleChange(section, rowIdx, key, e.target.value)
+                              }
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )
+            ) : (
+              <p>No data found for this section.</p>
+            )}
+          </div>
+        </div>
+      );
     }
 
-    function deleteCar() {
-      if (!confirm(`Are you sure you want to delete ${selectedCarId}?`)) return;
-      carDataMulti = carDataMulti.filter(c => c.car_id !== selectedCarId);
-      if (carDataMulti.length > 0) {
-        selectedCarId = carDataMulti[0].car_id;
-        currentData = carDataMulti[0].data;
-        localStorage.setItem("car_data_multi", JSON.stringify(carDataMulti));
-        localStorage.setItem("car_id", selectedCarId);
-        localStorage.setItem("car_data", JSON.stringify(currentData));
-      } else {
-        localStorage.removeItem("car_data_multi");
-        localStorage.removeItem("car_id");
-        localStorage.removeItem("car_data");
-      }
-      loadDropdown();
-      loadSectionButtons();
-      renderSection(currentSection);
-    }
-
-    // Init
-    window.onload = () => {
-      const found = carDataMulti.find(c => c.car_id === selectedCarId);
-      if (found) currentData = found.data;
-      loadDropdown();
-      loadSectionButtons();
-      renderSection(currentSection);
-    };
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<ExtractReview />);
   </script>
 </body>
 </html>
+
 
