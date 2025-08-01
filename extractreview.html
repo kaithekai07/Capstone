@@ -3,20 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <title>Review CAR Data</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       margin: 0;
       font-family: sans-serif;
       background-color: #f5f5f5;
     }
+
     .container {
       display: flex;
       height: 100vh;
     }
+
     .sidebar {
       width: 220px;
       background: #e0e0e0;
@@ -24,89 +26,94 @@
       display: flex;
       flex-direction: column;
     }
-    .sidebar button {
-      background: none;
-      border: none;
+
+    .sidebar select {
+      margin-bottom: 1rem;
       padding: 0.5rem;
-      margin-bottom: 0.25rem;
-      text-align: left;
+      font-size: 1rem;
+    }
+
+    .sidebar button {
+      margin-top: 0.5rem;
+      padding: 0.6rem;
+      border: none;
       cursor: pointer;
+      border-radius: 5px;
+      font-size: 0.9rem;
     }
-    .sidebar button.active {
-      background: #007acc;
+
+    .submit-btn {
+      background-color: #2563eb;
       color: white;
     }
-    .sidebar button.submit-btn {
-      margin-top: auto;
-      background: #28a745;
+
+    .delete-btn {
+      background-color: #dc2626;
       color: white;
     }
+
     .content {
       flex: 1;
       padding: 1rem;
       overflow-y: auto;
       background: white;
     }
+
     table {
       width: 100%;
       table-layout: fixed;
       border-collapse: collapse;
       font-size: 14px;
     }
-    colgroup col {
-      border: none;
-    }
+
     th {
       background-color: #071d49;
       color: white;
       padding: 10px 8px;
       text-align: left;
-      font-weight: 600;
       border: 1px solid #ddd;
     }
+
     td {
-      padding: 0;
       border: 1px solid #ddd;
-      vertical-align: top;
+      padding: 0;
     }
-    tr:nth-child(even) td {
-      background-color: #f9f9f9;
-    }
-    input, select {
+
+    input, textarea {
       width: 100%;
-      padding: 8px 10px;
-      font-size: 14px;
+      padding: 8px;
       border: none;
+      font-size: 14px;
       background-color: transparent;
       box-sizing: border-box;
     }
-    input:focus, select:focus {
+
+    input:focus, textarea:focus {
       outline: none;
       background-color: #eef2ff;
     }
-    textarea.answer-column {
-      width: 100%;
-      padding: 8px 10px;
-      font-size: 14px;
-      font-family: inherit;
-      border: none;
-      background-color: transparent;
-      box-sizing: border-box;
-      resize: none;
-      line-height: 1.4;
-      white-space: pre-wrap;
+
+    textarea {
+      resize: vertical;
       min-height: 60px;
     }
-    textarea.answer-column:focus {
-      outline: none;
-      background-color: #eef2ff;
+
+    .section-btn {
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 0.5rem;
+      cursor: pointer;
     }
+
+    .section-btn.active {
+      font-weight: bold;
+      color: #2563eb;
+    }
+
     .status {
       margin-top: 1rem;
       font-size: 14px;
-    }
-    .car-dropdown {
-      margin-bottom: 1rem;
     }
   </style>
 </head>
@@ -115,55 +122,58 @@
 
   <script type="text/babel">
     function ExtractReview() {
+      const [multiData, setMultiData] = React.useState([]);
+      const [selectedCarId, setSelectedCarId] = React.useState("");
       const [data, setData] = React.useState({});
       const [section, setSection] = React.useState("Section_C");
       const [status, setStatus] = React.useState("");
       const [loading, setLoading] = React.useState(false);
-      const [allCARs, setAllCARs] = React.useState([]);
-      const [selectedCarId, setSelectedCarId] = React.useState("");
 
       React.useEffect(() => {
-        const rawList = localStorage.getItem("car_data_multi");
-        if (!rawList) {
-          alert("❌ No CAR data found. Please upload first.");
+        const rawMulti = localStorage.getItem("car_data_multi");
+
+        if (!rawMulti) {
+          alert("❌ No CAR data found. Please upload at least one CAR.");
           window.location.href = "upload.html";
           return;
         }
 
-        const parsed = JSON.parse(rawList);
-        if (!Array.isArray(parsed) || parsed.length === 0) {
-          alert("❌ CAR data is empty.");
-          window.location.href = "upload.html";
-        } else {
-          setAllCARs(parsed);
-          setSelectedCarId(parsed[0].car_id);
-          setData(parsed[0].data);
-        }
+        const parsed = JSON.parse(rawMulti);
+        setMultiData(parsed);
+
+        // Load first one by default
+        const first = parsed[0];
+        setSelectedCarId(first.car_id);
+        setData(first.data);
+        localStorage.setItem("car_id", first.car_id);
+        localStorage.setItem("car_data", JSON.stringify(first.data));
       }, []);
 
-const handleSelectChange = (e) => {
-  setSelectedCarId(e.target.value);
-  setStatus("");
-};
-
-React.useEffect(() => {
-  const found = allCARs.find((car) => car.car_id === selectedCarId);
-  if (found) {
-    setData(found.data);
-  }
-}, [selectedCarId, allCARs]);
-
+      const handleCarChange = (e) => {
+        const id = e.target.value;
+        setSelectedCarId(id);
+        const found = multiData.find(car => car.car_id === id);
+        if (found) {
+          setData(found.data);
+          localStorage.setItem("car_id", found.car_id);
+          localStorage.setItem("car_data", JSON.stringify(found.data));
+        }
+      };
 
       const handleChange = (sec, idx, key, val) => {
-        const updatedData = { ...data };
-        updatedData[sec][idx][key] = val;
-        setData(updatedData);
+        const updated = { ...data };
+        updated[sec][idx][key] = val;
+        setData(updated);
 
-        const updatedList = allCARs.map((car) =>
-          car.car_id === selectedCarId ? { ...car, data: updatedData } : car
-        );
-        setAllCARs(updatedList);
-        localStorage.setItem("car_data_multi", JSON.stringify(updatedList));
+        const newMulti = multiData.map(car => {
+          if (car.car_id === selectedCarId) {
+            return { ...car, data: updated };
+          }
+          return car;
+        });
+        setMultiData(newMulti);
+        localStorage.setItem("car_data_multi", JSON.stringify(newMulti));
+        localStorage.setItem("car_data", JSON.stringify(updated));
       };
 
       const handleSubmit = async () => {
@@ -176,17 +186,19 @@ React.useEffect(() => {
             body: JSON.stringify({ car_id: selectedCarId, data })
           });
           const result = await res.json();
-          if (result.status && result.status.includes("✅")) {
-            const updatedList = allCARs.filter((car) => car.car_id !== selectedCarId);
-            localStorage.setItem("car_data_multi", JSON.stringify(updatedList));
-            if (updatedList.length === 0) {
+          if (result.status?.includes("✅")) {
+            setStatus("✅ Submission complete!");
+            localStorage.removeItem("car_data");
+            localStorage.removeItem("car_id");
+            const remaining = multiData.filter(car => car.car_id !== selectedCarId);
+            if (remaining.length === 0) {
+              localStorage.removeItem("car_data_multi");
               window.location.href = "thankyou.html";
             } else {
-              alert(`✅ ${selectedCarId} submitted.`);
-              setAllCARs(updatedList);
-              setSelectedCarId(updatedList[0].car_id);
-              setData(updatedList[0].data);
-              setStatus("");
+              localStorage.setItem("car_data_multi", JSON.stringify(remaining));
+              setMultiData(remaining);
+              setSelectedCarId(remaining[0].car_id);
+              setData(remaining[0].data);
             }
           } else {
             setStatus(result.error || "Submission failed.");
@@ -198,29 +210,22 @@ React.useEffect(() => {
         }
       };
 
-const handleDelete = () => {
-  if (!selectedCarId) return;
-
-  const updated = allCARs.filter((car) => car.car_id !== selectedCarId);
-  localStorage.setItem("car_data_multi", JSON.stringify(updated));
-
-  if (updated.length === 0) {
-    localStorage.removeItem("car_data_multi");
-    localStorage.removeItem("car_id");
-    localStorage.removeItem("car_data");
-    window.location.href = "upload.html";
-    return;
-  }
-
-  const next = updated[0];
-  localStorage.setItem("car_id", next.car_id);
-  localStorage.setItem("car_data", JSON.stringify(next.data));
-  setAllCARs(updated);
-  setSelectedCarId(next.car_id);
-  setData(next.data);
-  setStatus("🗑️ Deleted successfully.");
-};
-
+      const handleDelete = () => {
+        const filtered = multiData.filter(car => car.car_id !== selectedCarId);
+        if (filtered.length === 0) {
+          localStorage.removeItem("car_data_multi");
+          localStorage.removeItem("car_data");
+          localStorage.removeItem("car_id");
+          window.location.href = "upload.html";
+        } else {
+          setMultiData(filtered);
+          setSelectedCarId(filtered[0].car_id);
+          setData(filtered[0].data);
+          localStorage.setItem("car_data_multi", JSON.stringify(filtered));
+          localStorage.setItem("car_id", filtered[0].car_id);
+          localStorage.setItem("car_data", JSON.stringify(filtered[0].data));
+        }
+      };
 
       const sectionLabels = {
         Section_A: "General Info",
@@ -235,108 +240,71 @@ const handleDelete = () => {
       return (
         <div className="container">
           <div className="sidebar">
-            <div className="car-dropdown">
-              <strong>Selected CAR:</strong>
-              <select value={selectedCarId} onChange={handleSelectChange}>
-                {allCARs.map((car) => (
-                  <option key={car.car_id} value={car.car_id}>{car.car_id}</option>
-                ))}
-              </select>
-            </div>
-            {Object.keys(sectionLabels).map((key) => (
+            <select value={selectedCarId} onChange={handleCarChange}>
+              {multiData.map((car) => (
+                <option key={car.car_id} value={car.car_id}>
+                  {car.car_id}
+                </option>
+              ))}
+            </select>
+
+            {Object.entries(sectionLabels).map(([sec, label]) => (
               <button
-                key={key}
-                className={section === key ? "active" : ""}
-                onClick={() => setSection(key)}
+                key={sec}
+                className={`section-btn ${section === sec ? "active" : ""}`}
+                onClick={() => setSection(sec)}
               >
-                {sectionLabels[key]}
+                {label}
               </button>
             ))}
+
             <button className="submit-btn" onClick={handleSubmit} disabled={loading}>
               ✅ Submit
             </button>
-            <button
-              className="submit-btn"
-              style={{ backgroundColor: "#dc3545", marginTop: "0.5rem" }}
-              onClick={handleDelete}
-              disabled={loading}
-            >
+            <button className="delete-btn" onClick={handleDelete}>
               🗑️ Delete
             </button>
+
             {status && <p className="status">{status}</p>}
           </div>
 
           <div className="content">
             <h3>{sectionLabels[section]}</h3>
             {data[section]?.length > 0 ? (
-              section === "Section_C" ? (
-                <table>
-                  <colgroup>
-                    <col style={{ width: "12%" }} />
-                    <col style={{ width: "12%" }} />
-                    <col style={{ width: "12%" }} />
-                    <col style={{ width: "12%" }} />
-                    <col style={{ width: "12%" }} />
-                    <col style={{ width: "40%" }} />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th>CAR NO.</th>
-                      <th>ID NO. SEC C</th>
-                      <th>ID NO. SEC A</th>
-                      <th>WHY</th>
-                      <th>CAUSAL FACTOR</th>
-                      <th>ANSWER</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data[section].map((record, rowIdx) => (
-                      <tr key={rowIdx}>
-                        <td><input value={record["CAR NO."]} onChange={(e) => handleChange(section, rowIdx, "CAR NO.", e.target.value)} /></td>
-                        <td><input value={record["ID NO. SEC C"]} onChange={(e) => handleChange(section, rowIdx, "ID NO. SEC C", e.target.value)} /></td>
-                        <td><input value={record["ID NO. SEC A"]} onChange={(e) => handleChange(section, rowIdx, "ID NO. SEC A", e.target.value)} /></td>
-                        <td><input value={record["WHY"]} onChange={(e) => handleChange(section, rowIdx, "WHY", e.target.value)} /></td>
-                        <td><input value={record["CAUSAL FACTOR"]} onChange={(e) => handleChange(section, rowIdx, "CAUSAL FACTOR", e.target.value)} /></td>
-                        <td>
-                          <textarea
-                            className="answer-column"
-                            value={record["ANSWER"]}
-                            onChange={(e) =>
-                              handleChange(section, rowIdx, "ANSWER", e.target.value)
-                            }
-                          ></textarea>
-                        </td>
-                      </tr>
+              <table>
+                <thead>
+                  <tr>
+                    {Object.keys(data[section][0]).map((field) => (
+                      <th key={field}>{field}</th>
                     ))}
-                  </tbody>
-                </table>
-              ) : (
-                <table>
-                  <thead>
-                    <tr>
-                      {Object.keys(data[section][0]).map((field) => (
-                        <th key={field}>{field}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data[section].map((record, rowIdx) => (
-                      <tr key={rowIdx}>
-                        {Object.entries(record).map(([key, val]) => (
-                          <td key={key}>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data[section].map((record, rowIdx) => (
+                    <tr key={rowIdx}>
+                      {Object.entries(record).map(([key, val]) => (
+                        <td key={key}>
+                          {key === "ANSWER" ? (
+                            <textarea
+                              value={val}
+                              onChange={(e) =>
+                                handleChange(section, rowIdx, key, e.target.value)
+                              }
+                            />
+                          ) : (
                             <input
                               value={val}
                               onChange={(e) =>
                                 handleChange(section, rowIdx, key, e.target.value)
                               }
                             />
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             ) : (
               <p>No data found for this section.</p>
             )}
@@ -350,6 +318,3 @@ const handleDelete = () => {
   </script>
 </body>
 </html>
-
-
-
