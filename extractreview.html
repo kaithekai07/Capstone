@@ -198,23 +198,29 @@ React.useEffect(() => {
         }
       };
 
-      const handleDelete = () => {
-        if (!confirm(`Are you sure you want to delete CAR: ${selectedCarId}?`)) return;
+const handleDelete = () => {
+  if (!selectedCarId) return;
 
-        const updatedList = allCARs.filter((c) => c.car_id !== selectedCarId);
-        localStorage.setItem("car_data_multi", JSON.stringify(updatedList));
+  const updated = allCARs.filter((car) => car.car_id !== selectedCarId);
+  localStorage.setItem("car_data_multi", JSON.stringify(updated));
 
-        if (updatedList.length === 0) {
-          alert("🗑️ All CARs deleted. Redirecting.");
-          window.location.href = "thankyou.html";
-        } else {
-          alert(`🗑️ ${selectedCarId} removed.`);
-          setAllCARs(updatedList);
-          setSelectedCarId(updatedList[0].car_id);
-          setData(updatedList[0].data);
-          setStatus("");
-        }
-      };
+  if (updated.length === 0) {
+    localStorage.removeItem("car_data_multi");
+    localStorage.removeItem("car_id");
+    localStorage.removeItem("car_data");
+    window.location.href = "upload.html";
+    return;
+  }
+
+  const next = updated[0];
+  localStorage.setItem("car_id", next.car_id);
+  localStorage.setItem("car_data", JSON.stringify(next.data));
+  setAllCARs(updated);
+  setSelectedCarId(next.car_id);
+  setData(next.data);
+  setStatus("🗑️ Deleted successfully.");
+};
+
 
       const sectionLabels = {
         Section_A: "General Info",
