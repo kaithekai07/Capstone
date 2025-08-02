@@ -47,28 +47,37 @@
       color: white;
     }
 
-    .submit-btn {
-      background: #2563eb;
-      color: white;
-      font-weight: bold;
-      margin-top: auto;
-      padding: 0.75rem;
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      padding: 10px 14px;
+      margin-top: 1rem;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       font-size: 15px;
+      font-weight: bold;
       cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .submit-btn {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .submit-btn:hover {
+      background-color: #1e40af;
     }
 
     .delete-btn {
-      background: #dc3545;
+      background-color: #dc3545;
       color: white;
-      margin-top: 0.5rem;
-      font-weight: bold;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 5px;
-      font-size: 15px;
-      cursor: pointer;
+    }
+
+    .delete-btn:hover {
+      background-color: #a3202a;
     }
 
     .content {
@@ -83,10 +92,6 @@
       table-layout: fixed;
       border-collapse: collapse;
       font-size: 14px;
-    }
-
-    colgroup col {
-      border: none;
     }
 
     th {
@@ -181,10 +186,10 @@
 
       const handleSubmitAll = async () => {
         setLoading(true);
-        setStatus("Submitting all...");
+        setStatus("Submitting all CARs...");
 
         try {
-          for (const car of carList) {
+          for (let car of carList) {
             await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -192,6 +197,7 @@
             });
           }
 
+          // Clear localStorage after submission
           localStorage.removeItem("car_data_multi");
           localStorage.removeItem("car_data");
           localStorage.removeItem("car_id");
@@ -199,7 +205,6 @@
           setStatus("✅ All submissions complete!");
           window.location.href = "thankyou.html";
         } catch (err) {
-          console.error(err);
           setStatus("❌ " + err.message);
         } finally {
           setLoading(false);
@@ -262,12 +267,10 @@
               </button>
             ))}
 
-            <button className="submit-btn" onClick={handleSubmitAll} disabled={loading}>
+            <button className="action-btn submit-btn" onClick={handleSubmitAll} disabled={loading}>
               ✅ Submit All
             </button>
-            <button className="delete-btn" onClick={handleDelete}>
-              🗑️ Delete
-            </button>
+            <button className="action-btn delete-btn" onClick={handleDelete}>🗑️ Delete</button>
 
             {status && <p className="status">{status}</p>}
           </div>
@@ -354,4 +357,5 @@
   </script>
 </body>
 </html>
+
 
