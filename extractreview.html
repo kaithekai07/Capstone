@@ -169,23 +169,31 @@
         setCarList(updatedList);
       };
 
-      const handleSubmit = async () => {
+      const handleSubmitAll = async () => {
         setLoading(true);
-        setStatus("Submitting...");
+        setStatus("Submitting all...");
 
         try {
-          const car = carList[currentIndex];
-          const res = await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ car_id: car.car_id, data: car.data })
-          });
-          const result = await res.json();
-          if (result.status && result.status.includes("✅")) {
-            setStatus("✅ Submission complete!");
-          } else {
-            setStatus(result.error || "Submission failed.");
+          for (const car of carList) {
+            const res = await fetch("https://capstone-backend-128c.onrender.com/submit-car", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ car_id: car.car_id, data: car.data })
+            });
+            const result = await res.json();
+            if (!result.status || !result.status.includes("✅")) {
+              throw new Error(result.error || "Submission failed");
+            }
           }
+
+          setStatus("✅ All submissions complete!");
+          localStorage.removeItem("car_data_multi");
+          localStorage.removeItem("car_data");
+          localStorage.removeItem("car_id");
+
+          setTimeout(() => {
+            window.location.href = "thankyou.html";
+          }, 1000);
         } catch (err) {
           setStatus("❌ " + err.message);
         } finally {
@@ -249,8 +257,8 @@
               </button>
             ))}
 
-            <button className="submit-btn" onClick={handleSubmit} disabled={loading}>
-              ✅ Submit
+            <button className="submit-btn" onClick={handleSubmitAll} disabled={loading}>
+              ✅ Submit All
             </button>
             <button className="delete-btn" onClick={handleDelete}>🗑️ Delete</button>
 
