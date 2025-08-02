@@ -25,6 +25,8 @@
       padding: 1rem;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      position: relative;
     }
 
     .sidebar select {
@@ -47,16 +49,31 @@
       color: white;
     }
 
+    .action-buttons {
+      background-color: #d1d5db;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .submit-btn, .delete-btn {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
     .submit-btn {
-      background: #28a745;
+      background-color: #28a745;
       color: white;
-      margin-top: auto;
     }
 
     .delete-btn {
-      background: #dc3545;
+      background-color: #dc3545;
       color: white;
-      margin-top: 0.5rem;
     }
 
     .content {
@@ -130,6 +147,7 @@
     .status {
       margin-top: 1rem;
       font-size: 14px;
+      color: #111827;
     }
   </style>
 </head>
@@ -239,30 +257,33 @@
       return (
         <div className="container">
           <div className="sidebar">
-            <select value={currentIndex} onChange={(e) => setCurrentIndex(parseInt(e.target.value))}>
-              {carList.map((car, idx) => (
-                <option key={idx} value={idx}>
-                  {car.car_id}
-                </option>
+            <div>
+              <select value={currentIndex} onChange={(e) => setCurrentIndex(parseInt(e.target.value))}>
+                {carList.map((car, idx) => (
+                  <option key={idx} value={idx}>
+                    {car.car_id}
+                  </option>
+                ))}
+              </select>
+
+              {Object.keys(sectionLabels).map((key) => (
+                <button
+                  key={key}
+                  className={section === key ? "active" : ""}
+                  onClick={() => setSection(key)}
+                >
+                  {sectionLabels[key]}
+                </button>
               ))}
-            </select>
+            </div>
 
-            {Object.keys(sectionLabels).map((key) => (
-              <button
-                key={key}
-                className={section === key ? "active" : ""}
-                onClick={() => setSection(key)}
-              >
-                {sectionLabels[key]}
+            <div className="action-buttons">
+              <button className="submit-btn" onClick={handleSubmitAll} disabled={loading}>
+                ✅ Submit All
               </button>
-            ))}
-
-            <button className="submit-btn" onClick={handleSubmitAll} disabled={loading}>
-              ✅ Submit All
-            </button>
-            <button className="delete-btn" onClick={handleDelete}>🗑️ Delete</button>
-
-            {status && <p className="status">{status}</p>}
+              <button className="delete-btn" onClick={handleDelete}>🗑️ Delete</button>
+              {status && <p className="status">{status}</p>}
+            </div>
           </div>
 
           <div className="content">
@@ -353,5 +374,4 @@
   </script>
 </body>
 </html>
-
 
