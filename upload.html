@@ -9,20 +9,27 @@
       font-family: Arial, sans-serif;
       background-color: #f5f7fa;
       padding: 2rem;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .upload-box {
+    h2 {
+      margin-bottom: 1rem;
+    }
+
+    .upload-area {
       border: 2px dashed #ccc;
       padding: 2rem;
+      text-align: center;
+      background: #fff;
       border-radius: 10px;
-      background: white;
-      max-width: 600px;
-      margin: 0 auto;
       cursor: pointer;
+      max-width: 600px;
+      width: 100%;
     }
 
-    .upload-box:hover {
+    .upload-area:hover {
       background-color: #eef;
     }
 
@@ -32,27 +39,33 @@
 
     .file-list {
       margin-top: 2rem;
+      width: 100%;
       max-width: 600px;
-      margin-inline: auto;
     }
 
-    .file-item {
-      background: #fff;
+    .file-card {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
       padding: 1rem;
       margin-bottom: 1rem;
-      border: 1px solid #ddd;
-      border-radius: 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .file-info {
+      text-align: left;
     }
 
     .file-status {
       font-size: 0.9rem;
+      color: #555;
     }
 
-    .file-remove {
-      background-color: #f87171;
+    .remove-btn {
+      background-color: #ef4444;
       color: white;
       border: none;
       padding: 0.4rem 0.8rem;
@@ -73,7 +86,7 @@
 
     .home-btn {
       display: block;
-      margin: 1.5rem auto;
+      margin-top: 1rem;
       padding: 0.75rem 1.5rem;
       background-color: #10b981;
       color: white;
@@ -86,7 +99,7 @@
 
   <h2>Upload CAR PDFs</h2>
 
-  <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+  <div class="upload-area" onclick="document.getElementById('fileInput').click()">
     📄 Click to Add PDF Files
     <input type="file" id="fileInput" accept=".pdf" multiple onchange="handleFiles(this.files)">
   </div>
@@ -112,16 +125,16 @@
       list.innerHTML = "";
 
       filesToUpload.forEach((item, index) => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "file-item";
-        wrapper.innerHTML = `
-          <div>
+        const card = document.createElement("div");
+        card.className = "file-card";
+        card.innerHTML = `
+          <div class="file-info">
             <strong>${item.file.name}</strong><br>
             <span class="file-status" id="status-${item.id}">${item.status}</span>
           </div>
-          <button class="file-remove" onclick="removeFile(${index})">Delete</button>
+          <button class="remove-btn" onclick="removeFile(${index})">Delete</button>
         `;
-        list.appendChild(wrapper);
+        list.appendChild(card);
       });
     }
 
@@ -149,10 +162,9 @@
           if (uploadedCar && uploadedCar.car_id) {
             statusEl.textContent = `✅ Uploaded: ${uploadedCar.car_id}`;
 
-            // Save to localStorage
-            const stored = JSON.parse(localStorage.getItem("car_data_multi") || "[]");
-            stored.push(uploadedCar);
-            localStorage.setItem("car_data_multi", JSON.stringify(stored));
+            const existing = JSON.parse(localStorage.getItem("car_data_multi") || "[]");
+            existing.push(uploadedCar);
+            localStorage.setItem("car_data_multi", JSON.stringify(existing));
             localStorage.setItem("car_id", uploadedCar.car_id);
             localStorage.setItem("car_data", JSON.stringify(uploadedCar.data));
           } else {
@@ -164,7 +176,6 @@
         }
       }
 
-      // Redirect after delay
       setTimeout(() => {
         window.location.href = "extractreview.html";
       }, 1500);
