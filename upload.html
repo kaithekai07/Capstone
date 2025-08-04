@@ -41,29 +41,7 @@
       position: relative;
     }
 
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: 600;
-    }
-
-    input[type="text"],
-    input[type="date"],
-    textarea {
-      width: 100%;
-      padding: 0.75rem;
-      margin-top: 0.25rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
     .file-upload {
-      margin-top: 1.5rem;
       border: 2px dashed #ccc;
       padding: 2rem;
       text-align: center;
@@ -72,30 +50,27 @@
 
     .button-row {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       margin-top: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
     }
 
-    button,
-    .home-btn {
+    .cancel-btn, .submit-all, .home-btn, .add-more {
       padding: 0.75rem 1.5rem;
       font-size: 1rem;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      text-decoration: none;
-    }
-
-    .submit-btn {
-      background-color: #2563eb;
-      color: white;
     }
 
     .cancel-btn {
       background-color: #e5e7eb;
       color: black;
+    }
+
+    .submit-all {
+      margin-top: 1rem;
+      background-color: #2563eb;
+      color: white;
     }
 
     .home-btn {
@@ -115,12 +90,6 @@
       font-size: 14px;
     }
 
-    .submit-all {
-      margin-top: 1rem;
-      background-color: #2563eb;
-      color: white;
-    }
-
     @media (max-width: 600px) {
       .form-wrapper {
         flex: 0 0 95%;
@@ -129,8 +98,8 @@
   </style>
 </head>
 <body>
-  <h2>Upload CARs</h2>
-  <button class="add-more" onclick="addUploadForm()">➕ Add Another CAR</button>
+  <h2>Upload CARs (PDF Only)</h2>
+  <button class="add-more" onclick="addUploadForm()">➕ Add Another File</button>
   <div class="carousel-container" id="uploadFormsContainer"></div>
 
   <button class="submit-all" onclick="submitAll()">📤 Submit All</button>
@@ -145,20 +114,10 @@
       const html = `
         <div class="form-wrapper" id="form-wrapper-${formIndex}">
           <form id="uploadForm-${formIndex}" enctype="multipart/form-data">
-            <label for="car-id-${formIndex}">CAR ID</label>
-            <input type="text" id="car-id-${formIndex}" name="carId" placeholder="Enter CAR ID" required />
-
-            <label for="car-date-${formIndex}">Date</label>
-            <input type="date" id="car-date-${formIndex}" name="date" required />
-
-            <label for="car-desc-${formIndex}">Description</label>
-            <textarea id="car-desc-${formIndex}" name="description" placeholder="Details..." required></textarea>
-
             <div class="file-upload">
-              <p>📄 Upload PDF</p>
-              <input type="file" id="car-file-${formIndex}" name="file" accept=".pdf" required />
+              <p>📄 Upload PDF File</p>
+              <input type="file" name="file" accept=".pdf" required />
             </div>
-
             <div class="button-row">
               <button type="button" class="cancel-btn" onclick="removeForm(${formIndex})">Remove</button>
             </div>
@@ -178,7 +137,7 @@
     async function submitAll() {
       const formWrappers = document.querySelectorAll(".form-wrapper");
       if (formWrappers.length === 0) {
-        alert("Please add at least one CAR to upload.");
+        alert("Please add at least one PDF to upload.");
         return;
       }
 
@@ -218,7 +177,6 @@
       }
 
       if (uploadedResults.length > 0) {
-        // Merge with existing if any
         const existing = JSON.parse(localStorage.getItem("car_data_multi") || "[]");
         const all = [...existing];
 
@@ -236,7 +194,7 @@
           window.location.href = "extractreview.html";
         }, 1000);
       } else {
-        alert("No CARs successfully uploaded.");
+        alert("No files were successfully uploaded.");
       }
     }
 
@@ -244,3 +202,4 @@
   </script>
 </body>
 </html>
+
