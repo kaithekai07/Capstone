@@ -7,150 +7,154 @@
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background-color: #f5f5f5;
-    }
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #f5f5f5;
+  }
 
-    .container {
-      display: flex;
-      height: 100vh;
-    }
+  .container {
+    display: flex;
+    height: 100vh;
+  }
 
-    .sidebar {
-      width: 220px;
-      background: #e0e0e0;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-    }
+  .sidebar {
+    width: 220px;
+    background: #e0e0e0;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
 
-    .sidebar select {
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      font-size: 14px;
-    }
+  .sidebar select {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    font-size: 14px;
+  }
 
-    .sidebar button {
-      background: none;
-      border: none;
-      padding: 0.5rem;
-      margin-bottom: 0.25rem;
-      text-align: left;
-      cursor: pointer;
-    }
+  .sidebar button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    margin-bottom: 0.25rem;
+    text-align: left;
+    cursor: pointer;
+  }
 
-    .sidebar button.active {
-      background: #007acc;
-      color: white;
-    }
+  .sidebar button.active {
+    background: #007acc;
+    color: white;
+  }
 
-    .submit-btn {
-      background: #2563eb;
-      color: black;
-      font-weight: bold;
-      margin-top: auto;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 5px;
-      font-size: 15px;
-      cursor: pointer;
-    }
+  .submit-btn {
+    background: #2563eb;
+    color: black;
+    font-weight: bold;
+    margin-top: auto;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    cursor: pointer;
+  }
 
-    .delete-btn {
-      background: #dc3545;
-      color: black;
-      margin-top: 0.5rem;
-      font-weight: bold;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 5px;
-      font-size: 15px;
-      cursor: pointer;
-    }
+  .delete-btn {
+    background: #dc3545;
+    color: black;
+    margin-top: 0.5rem;
+    font-weight: bold;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    cursor: pointer;
+  }
 
-    .content {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      background: white;
-    }
+  .submit-btn:hover {
+    background-color: #1e40af;
+  }
 
-    table {
-      width: 100%;
-      table-layout: fixed;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
+  .delete-btn:hover {
+    background-color: #a3202a;
+  }
 
-    colgroup col {
-      border: none;
-    }
+  .content {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    background: white;
+  }
 
-    th {
-      background-color: #071d49;
-      color: white;
-      padding: 10px 8px;
-      text-align: left;
-      border: 1px solid #ddd;
-    }
+  table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
 
-    td {
-      padding: 0;
-      border: 1px solid #ddd;
-      vertical-align: top;
-    }
+  colgroup col {
+    border: none;
+  }
 
-    tr:nth-child(even) td {
-      background-color: #f9f9f9;
-    }
+  th, td {
+    padding: 10px 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+    vertical-align: top;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
 
-    input {
-      width: 100%;
-      padding: 8px;
-      border: none;
-      background: transparent;
-    }
+  th {
+    background-color: #071d49;
+    color: white;
+  }
 
-    input:focus {
-      outline: none;
-      background-color: #eef2ff;
-    }
+  tr:nth-child(even) td {
+    background-color: #f9f9f9;
+  }
 
-    textarea.answer-column {
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      font-family: inherit;
-      border: none;
-      background: transparent;
-      resize: none;
-      min-height: 60px;
-      overflow-wrap: break-word;
-      white-space: pre-wrap;
-    }
+  input {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
 
-    textarea.answer-column:focus {
-      outline: none;
-      background-color: #eef2ff;
-    }
+  input:focus {
+    outline: none;
+    background-color: #eef2ff;
+  }
 
-    .status {
-      margin-top: 1rem;
-      font-size: 14px;
-    }
-    
-    .submit-btn:hover {
-  background-color: #1e40af;
-}
+  textarea.answer-column {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    border: none;
+    background: transparent;
+    resize: none;
+    min-height: 60px;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
 
+  textarea.answer-column:focus {
+    outline: none;
+    background-color: #eef2ff;
+  }
 
-.delete-btn:hover {
-  background-color: #a3202a;
-}
-  </style>
+  .status {
+    margin-top: 1rem;
+    font-size: 14px;
+  }
+</style>
+
 </head>
 <body>
   <div id="root"></div>
