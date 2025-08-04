@@ -79,6 +79,17 @@
       white-space: nowrap;
     }
 
+    .delete-btn {
+      margin-left: 1rem;
+      background-color: #f87171;
+      color: white;
+      border: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
     button {
       margin-top: 1rem;
       background-color: #2563eb;
@@ -149,6 +160,11 @@
       renderFileList();
     }
 
+    function removeFile(index) {
+      filesToUpload.splice(index, 1);
+      renderFileList();
+    }
+
     function renderFileList() {
       fileList.innerHTML = "";
       filesToUpload.forEach((item, index) => {
@@ -160,6 +176,7 @@
             <small>${(item.file.size / 1024).toFixed(1)} KB</small>
           </div>
           <div class="upload-status" id="status-${index}">${item.status}</div>
+          <button class="delete-btn" onclick="removeFile(${index})">❌ Remove</button>
         `;
         fileList.appendChild(div);
       });
@@ -168,7 +185,6 @@
     async function uploadAll() {
       if (filesToUpload.length === 0) {
         alert("Please select at least one PDF file.");
-        window.scrollTo(0, 0);
         return;
       }
 
@@ -199,7 +215,6 @@
         }
       }
 
-      // Navigate after delay
       setTimeout(() => {
         window.location.href = "extractreview.html";
       }, 1200);
