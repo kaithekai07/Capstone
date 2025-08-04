@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Upload CARs</title>
+  <title>Upload CAR PDFs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="referrer" content="no-referrer">
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f5f7fa;
+      background-color: #f0f2f5;
       padding: 2rem;
       display: flex;
       flex-direction: column;
@@ -17,189 +17,134 @@
 
     h2 {
       margin-bottom: 1rem;
+      color: #111827;
     }
 
-    .carousel-container {
-      width: 100%;
-      max-width: 1000px;
-      overflow-x: auto;
-      display: flex;
-      gap: 1rem;
-      scroll-snap-type: x mandatory;
-      scroll-behavior: smooth;
-      padding-bottom: 1rem;
-    }
-
-    .form-wrapper {
-      flex: 0 0 90%;
-      scroll-snap-align: start;
+    .upload-box {
       background-color: white;
       padding: 2rem;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      min-width: 300px;
-      position: relative;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
     }
 
-    .file-upload {
+    .upload-box input[type="file"] {
+      display: none;
+    }
+
+    .upload-label {
       border: 2px dashed #ccc;
       padding: 2rem;
-      text-align: center;
+      display: block;
       border-radius: 8px;
-    }
-
-    .button-row {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 1.5rem;
-    }
-
-    .cancel-btn, .submit-all, .home-btn, .add-more {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 5px;
+      background-color: #fafafa;
       cursor: pointer;
+      margin-bottom: 1rem;
+      transition: all 0.2s ease;
     }
 
-    .cancel-btn {
-      background-color: #e5e7eb;
-      color: black;
+    .upload-label:hover {
+      border-color: #2563eb;
+      background-color: #f0f8ff;
     }
 
-    .submit-all {
-      margin-top: 1rem;
+    .file-name {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      color: #374151;
+    }
+
+    button {
       background-color: #2563eb;
       color: white;
-    }
-
-    .home-btn {
-      background-color: #10b981;
-      color: white;
-      margin-top: 1.5rem;
-    }
-
-    .add-more {
-      margin-bottom: 1.5rem;
-      background-color: #6b7280;
-      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
     }
 
     .status {
       margin-top: 1rem;
-      font-size: 14px;
+      font-size: 0.9rem;
+      color: #374151;
     }
 
-    @media (max-width: 600px) {
-      .form-wrapper {
-        flex: 0 0 95%;
-      }
+    .home-btn {
+      margin-top: 1.5rem;
+      background-color: #10b981;
+      text-decoration: none;
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 6px;
+      display: inline-block;
     }
   </style>
 </head>
 <body>
-  <h2>Upload CARs (PDF Only)</h2>
-  <button class="add-more" onclick="addUploadForm()">➕ Add Another File</button>
-  <div class="carousel-container" id="uploadFormsContainer"></div>
+  <h2>Upload CAR Report PDF</h2>
+  <div class="upload-box">
+    <form id="uploadForm" enctype="multipart/form-data">
+      <label for="car-file" class="upload-label">
+        📄 Click to choose PDF file
+        <input type="file" id="car-file" name="file" accept=".pdf" required />
+      </label>
+      <div id="fileName" class="file-name">No file chosen</div>
+      <button type="button" onclick="submitFile()">📤 Upload</button>
+      <div class="status" id="uploadStatus">⏳ Waiting to upload</div>
+    </form>
+  </div>
 
-  <button class="submit-all" onclick="submitAll()">📤 Submit All</button>
   <a href="safesightai.html" class="home-btn">🏠 Back to Home</a>
 
   <script>
-    let formIndex = 0;
+    const fileInput = document.getElementById("car-file");
+    const fileNameEl = document.getElementById("fileName");
+    const statusEl = document.getElementById("uploadStatus");
 
-    function addUploadForm() {
-      const container = document.getElementById("uploadFormsContainer");
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      fileNameEl.textContent = file ? `Selected: ${file.name}` : "No file chosen";
+    });
 
-      const html = `
-        <div class="form-wrapper" id="form-wrapper-${formIndex}">
-          <form id="uploadForm-${formIndex}" enctype="multipart/form-data">
-            <div class="file-upload">
-              <p>📄 Upload PDF File</p>
-              <input type="file" name="file" accept=".pdf" required />
-            </div>
-            <div class="button-row">
-              <button type="button" class="cancel-btn" onclick="removeForm(${formIndex})">Remove</button>
-            </div>
-            <div class="status" id="status-${formIndex}">⏳ Ready</div>
-          </form>
-        </div>
-      `;
-      container.insertAdjacentHTML("beforeend", html);
-      formIndex++;
-    }
+    async function submitFile() {
+      const form = document.getElementById("uploadForm");
+      const formData = new FormData(form);
+      const file = fileInput.files[0];
 
-    function removeForm(index) {
-      const wrapper = document.getElementById(`form-wrapper-${index}`);
-      if (wrapper) wrapper.remove();
-    }
-
-    async function submitAll() {
-      const formWrappers = document.querySelectorAll(".form-wrapper");
-      if (formWrappers.length === 0) {
-        alert("Please add at least one PDF to upload.");
+      if (!file) {
+        alert("Please choose a PDF file to upload.");
         return;
       }
 
-      const uploadedResults = [];
+      statusEl.textContent = "🔄 Uploading...";
 
-      for (let i = 0; i < formWrappers.length; i++) {
-        const form = formWrappers[i].querySelector("form");
-        const statusEl = formWrappers[i].querySelector(".status");
-        const formData = new FormData(form);
-
-        statusEl.textContent = "🔄 Uploading...";
-
-        try {
-          const response = await fetch("https://capstone-backend-128c.onrender.com/analyze", {
-            method: "POST",
-            body: formData
-          });
-
-          const contentType = response.headers.get("content-type") || "";
-          if (!contentType.includes("application/json")) {
-            const errorText = await response.text();
-            throw new Error("Non-JSON response: " + errorText);
-          }
-
-          const result = await response.json();
-          const res = result.results?.[0];
-          if (!res || !res.car_id) {
-            throw new Error("Missing CAR ID in result");
-          }
-
-          uploadedResults.push(res);
-          statusEl.textContent = `✅ Uploaded: ${res.car_id}`;
-        } catch (err) {
-          statusEl.textContent = "❌ Upload failed";
-          console.error(err);
-        }
-      }
-
-      if (uploadedResults.length > 0) {
-        const existing = JSON.parse(localStorage.getItem("car_data_multi") || "[]");
-        const all = [...existing];
-
-        uploadedResults.forEach(newItem => {
-          if (!all.some(item => item.car_id === newItem.car_id)) {
-            all.push(newItem);
-          }
+      try {
+        const response = await fetch("https://capstone-backend-128c.onrender.com/analyze", {
+          method: "POST",
+          body: formData
         });
 
-        localStorage.setItem("car_data_multi", JSON.stringify(all));
-        localStorage.setItem("car_id", all[0].car_id);
-        localStorage.setItem("car_data", JSON.stringify(all[0].data));
+        const result = await response.json();
+        const res = result.results?.[0];
+        if (!res || !res.car_id) throw new Error("Missing CAR ID in result");
+
+        localStorage.setItem("car_id", res.car_id);
+        localStorage.setItem("car_data", JSON.stringify(res.data));
+        statusEl.textContent = `✅ Uploaded: ${res.car_id}`;
 
         setTimeout(() => {
           window.location.href = "extractreview.html";
         }, 1000);
-      } else {
-        alert("No files were successfully uploaded.");
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "❌ Upload failed";
       }
     }
-
-    window.onload = addUploadForm;
   </script>
 </body>
 </html>
+
 
