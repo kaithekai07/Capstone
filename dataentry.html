@@ -2,31 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CAR Reports | Safesight AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', sans-serif;
       background-color: #174978;
       color: #ffffff;
-      min-height: 100vh;
+      margin: 0;
     }
     header {
-      background-color: #000;
+      background-color: #050505;
+      color: white;
+      padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.8rem 2rem;
     }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .logo img { height: 35px; width: auto; }
-    .logo strong { font-size: 1.2rem; color: #ffffff; }
     nav a, nav button {
       color: white;
       margin-left: 1.5rem;
@@ -36,18 +29,29 @@
       border: none;
       font: inherit;
       cursor: pointer;
+      transition: color 0.3s ease;
     }
-    nav a:hover, nav button:hover { color: #00c6ff; }
+    nav a:hover, nav button:hover {
+      color: #00c6ff;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .logo img {
+      height: 32px;
+      width: auto;
+    }
     h1 {
       text-align: center;
-      margin: 1.5rem 0 1rem;
+      margin: 1.5rem 0;
       font-size: 2.5rem;
     }
     .controls {
       max-width: 1100px;
       margin: 1rem auto;
       display: flex;
-      flex-wrap: wrap;
       gap: 1rem;
       justify-content: space-between;
       padding: 0 1rem;
@@ -78,7 +82,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 900px;
+      min-width: 800px;
     }
     th, td {
       border: 1px solid #ddd;
@@ -86,35 +90,21 @@
       text-align: left;
       font-size: 0.95rem;
       color: #000;
-      vertical-align: middle;
     }
     th { background-color: #092036; color: white; }
     tr:hover { background-color: #e6f7ff; }
-    .delete-btn {
-      background-color: red;
+    .delete-btn, .view-btn {
+      background: #008cff;
       color: white;
       border: none;
       padding: 4px 10px;
       border-radius: 4px;
       cursor: pointer;
     }
-    .view-btn {
-      background: #008cff;
-      color: white;
-      border: none;
-      padding: 4px 6px;
-      font-size: 0.75rem;
-      margin: 2px 2px 2px 0;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .refresh-btn {
-      background-color: #008cff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-weight: 600;
+    .delete-btn { background-color: red; }
+    .section-buttons button {
+      margin: 2px;
+      font-size: 0.8rem;
     }
     footer {
       background-color: #0a2540;
@@ -122,24 +112,12 @@
       text-align: center;
       padding: 2rem;
     }
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #00c851;
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 8px;
-      font-weight: bold;
-      z-index: 9999;
-    }
-    .toast.error { background-color: #ff4444; }
   </style>
 </head>
 <body>
-
 <header>
   <div class="logo">
+    <img src="safesight.jpg" alt="Safesight AI Logo">
     <strong>Safesight AI</strong>
   </div>
   <nav>
@@ -153,10 +131,9 @@
 </header>
 
 <h1>CAR Reports Table</h1>
-
 <div class="controls">
   <input type="text" id="search" placeholder="🔍 Search CAR ID..." />
-  <button onclick="fetchData()" class="refresh-btn">🔁 Refresh</button>
+  <button onclick="fetchData()">🔁 Refresh</button>
   <button id="add-row">➕ Add New Report</button>
 </div>
 
@@ -187,23 +164,14 @@ const supabase = createClient(
   'YOUR_PUBLIC_SUPABASE_KEY_HERE'
 );
 
-const tableName = 'car_reports';
 const tableBody = document.querySelector("#data-table tbody");
 const searchInput = document.getElementById("search");
 const addRowBtn = document.getElementById("add-row");
 let allRows = [];
 
-function showToast(message, type = "success") {
-  const toast = document.createElement("div");
-  toast.className = `toast ${type === "error" ? "error" : ""}`;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
 async function fetchData() {
-  const { data, error } = await supabase.from(tableName).select("*");
-  if (error) return console.error("Fetch error:", error);
+  const { data, error } = await supabase.from("car_reports").select("*");
+  if (error) return console.error(error);
   allRows = data;
   applyFilters();
 }
@@ -215,60 +183,37 @@ function renderRows(rows) {
 
     const idTd = document.createElement("td");
     idTd.textContent = row.car_id;
-    idTd.contentEditable = true;
-    idTd.onblur = async () => {
-      const newId = idTd.textContent.trim();
-      if (newId !== row.car_id) {
-        const { error } = await supabase
-          .from(tableName)
-          .update({ car_id: newId })
-          .eq("car_id", row.car_id);
-        if (!error) showToast("CAR ID updated");
-      }
-    };
     tr.appendChild(idTd);
 
-    const statusTd = document.createElement("td");
-    const status = document.createElement("span");
-    status.className = `badge ${row.submitted ? 'green' : 'red'}`;
-    status.textContent = row.submitted ? "✔" : "⨯";
-    status.style.cursor = "pointer";
-    status.onclick = async () => {
-      const newStatus = !row.submitted;
-      const { error } = await supabase.from(tableName).update({ submitted: newStatus }).eq('car_id', row.car_id);
-      if (!error) {
-        row.submitted = newStatus;
-        fetchData();
-        showToast("Status toggled");
-      }
-    };
-    statusTd.appendChild(status);
-    tr.appendChild(statusTd);
+    const submittedTd = document.createElement("td");
+    const badge = document.createElement("span");
+    badge.className = `badge ${row.submitted ? 'green' : 'red'}`;
+    badge.textContent = row.submitted ? "✔" : "⨯";
+    submittedTd.appendChild(badge);
+    tr.appendChild(submittedTd);
 
-    const sectionTd = document.createElement("td");
-    ["section_a", "section_b1", "section_b2", "section_c", "section_d", "section_e1", "section_e2"].forEach(sec => {
+    const sectionsTd = document.createElement("td");
+    const sectionNames = ["section_a","section_b1","section_b2","section_c","section_d","section_e1","section_e2"];
+    const div = document.createElement("div");
+    div.className = "section-buttons";
+    sectionNames.forEach(s => {
       const btn = document.createElement("button");
-      btn.textContent = sec.replace("section_", "View ").toUpperCase();
       btn.className = "view-btn";
-      btn.onclick = () => {
-        window.location.href = `section.html?car_id=${encodeURIComponent(row.car_id)}&section=${sec}`;
-      };
-      sectionTd.appendChild(btn);
+      btn.textContent = s.replace("section_", "View ").toUpperCase();
+      btn.onclick = () => window.location.href = `section.html?car_id=${row.car_id}&section=${s}`;
+      div.appendChild(btn);
     });
-    tr.appendChild(sectionTd);
+    sectionsTd.appendChild(div);
+    tr.appendChild(sectionsTd);
 
     const delTd = document.createElement("td");
     const delBtn = document.createElement("button");
-    delBtn.textContent = "🗑️";
     delBtn.className = "delete-btn";
+    delBtn.textContent = "🗑️";
     delBtn.onclick = async () => {
-      if (confirm("Delete this report?")) {
-        const { error } = await supabase.from(tableName).delete().eq("car_id", row.car_id);
-        if (!error) {
-          allRows = allRows.filter(r => r.car_id !== row.car_id);
-          applyFilters();
-          showToast("Report deleted");
-        }
+      if (confirm("Delete this CAR report?")) {
+        await supabase.from("car_reports").delete().eq("car_id", row.car_id);
+        fetchData();
       }
     };
     delTd.appendChild(delBtn);
@@ -292,12 +237,8 @@ addRowBtn.addEventListener("click", async () => {
     section_c: {}, section_d: {}, section_e1: {}, section_e2: {},
     submitted: false
   };
-  const { error } = await supabase.from(tableName).insert(newRow);
-  if (!error) {
-    allRows.push(newRow);
-    applyFilters();
-    showToast("New report created");
-  }
+  await supabase.from("car_reports").insert(newRow);
+  fetchData();
 });
 
 searchInput.addEventListener("input", applyFilters);
