@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400&family=Poppins:wght@700&display=swap" rel="stylesheet">
+
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -13,6 +14,7 @@
       background-color: #f5f7fa;
       color: #333;
     }
+
     header {
       background-color: #050505;
       color: white;
@@ -21,6 +23,7 @@
       justify-content: space-between;
       align-items: center;
     }
+
     nav a, nav button {
       color: white;
       margin-left: 1.5rem;
@@ -32,18 +35,22 @@
       cursor: pointer;
       transition: color 0.3s ease;
     }
+
     nav a:hover, nav button:hover {
       color: #00c6ff;
     }
+
     .logo {
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
+
     .logo img {
       height: 32px;
       width: auto;
     }
+
     .container {
       max-width: 96%;
       margin: 2rem auto;
@@ -53,40 +60,48 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.05);
       overflow-x: auto;
     }
+
     h1 {
       text-align: center;
       margin-top: 2rem;
       font-family: 'Poppins', sans-serif;
       font-size: 2rem;
     }
+
     .subtitle {
       text-align: center;
       color: #555;
       margin-bottom: 1.5rem;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
     }
+
     th, td {
       border: 1px solid #ddd;
       padding: 0.75rem;
       text-align: left;
       font-size: 0.95rem;
     }
+
     th {
       background-color: #092036;
       color: white;
     }
+
     tr:hover {
       background-color: #f0f8ff;
     }
+
     .error {
       color: red;
       text-align: center;
       margin-top: 2rem;
     }
+
     .back-link {
       display: block;
       text-align: center;
@@ -95,9 +110,11 @@
       color: #00c6ff;
       font-weight: 600;
     }
+
     .back-link:hover {
       text-decoration: underline;
     }
+
     footer {
       background-color: #0a2540;
       color: white;
@@ -109,6 +126,7 @@
   </style>
 </head>
 <body>
+
 <header>
   <div class="logo">
     <img src="safesight.jpg" alt="Safesight AI Logo">
@@ -123,6 +141,7 @@
     <button onclick="logout()">Logout</button>
   </nav>
 </header>
+
 <main class="container">
   <h1 id="pageTitle">Loading...</h1>
   <p class="subtitle" id="subtitle"></p>
@@ -130,9 +149,11 @@
   <p class="error" id="errorMessage"></p>
   <a href="dataentry.html" class="back-link">⬅ Back to Data Entry</a>
 </main>
+
 <footer>
   © 2025 Safesight AI. All rights reserved.
 </footer>
+
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -143,30 +164,37 @@
 
   const params = new URLSearchParams(window.location.search);
   const carId = params.get("car_id");
-  const section = params.get("section")?.toLowerCase();
+  const section = params.get("section");
 
   const pageTitle = document.getElementById("pageTitle");
   const subtitle = document.getElementById("subtitle");
   const errorMessage = document.getElementById("errorMessage");
   const tableContainer = document.getElementById("tableContainer");
 
-  if (!carId || !section) {
-    errorMessage.textContent = "Missing 'car_id' or 'section' in URL.";
-    tableContainer.innerHTML = "";
-  } else {
+  async function loadSectionData() {
+    if (!carId || !section) {
+      errorMessage.textContent = "Missing 'car_id' or 'section' in URL.";
+      tableContainer.innerHTML = "";
+      return;
+    }
+
     pageTitle.textContent = `Viewing ${section.replace("section_", "Section ").toUpperCase()}`;
     subtitle.textContent = `CAR ID: ${carId}`;
 
     try {
       const { data, error } = await supabase
         .from("car_reports")
-        .select(`${section}`)
+        .select(section)
         .eq("car_id", carId)
         .single();
 
-      console.log("Fetched:", data);
+      if (error || !data || !data[section]) {
+        errorMessage.textContent = "Failed to fetch section data.";
+        tableContainer.innerHTML = "";
+        return;
+      }
 
-      const sectionData = data?.[section] || [];
+      const sectionData = data[section];
 
       if (!Array.isArray(sectionData) || sectionData.length === 0) {
         errorMessage.textContent = "No records found for this section.";
@@ -192,6 +220,8 @@
       console.error(e);
     }
   }
+
+  loadSectionData();
 
   window.logout = async function () {
     await supabase.auth.signOut();
