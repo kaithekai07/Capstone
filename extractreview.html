@@ -164,7 +164,7 @@
     function ExtractReview() {
       const [carList, setCarList] = React.useState([]);
       const [currentIndex, setCurrentIndex] = React.useState(0);
-      const [section, setSection] = React.useState("Section_C");
+      const [section, setSection] = React.useState("section_c");
       const [status, setStatus] = React.useState("");
       const [loading, setLoading] = React.useState(false);
 
@@ -179,7 +179,16 @@
         try {
           const parsed = JSON.parse(raw);
           if (parsed.length === 0) throw new Error("Empty array");
-          setCarList(parsed);
+
+          // Normalize all section keys to lowercase
+          const normalized = parsed.map((car) => ({
+            ...car,
+            data: Object.fromEntries(
+              Object.entries(car.data || {}).map(([k, v]) => [k.toLowerCase(), v])
+            )
+          }));
+
+          setCarList(normalized);
         } catch (e) {
           console.error("Parse error:", e);
           alert("❌ Error loading CAR data.");
@@ -206,10 +215,7 @@
             });
           }
 
-          // ✅ Save submitted CAR IDs to localStorage
-          const submittedCarIds = carList.map(car => car.car_id);
-          localStorage.setItem("submittedCars", JSON.stringify(submittedCarIds));
-
+          localStorage.setItem("submittedCars", JSON.stringify(carList.map(c => c.car_id)));
           localStorage.removeItem("car_data_multi");
           localStorage.removeItem("car_data");
           localStorage.removeItem("car_id");
@@ -247,13 +253,13 @@
       };
 
       const sectionLabels = {
-        Section_A: "General Info",
-        Section_B1: "Chronology",
-        Section_B2: "Cost Impact",
-        Section_C: "Root Cause (5Why)",
-        Section_D: "Correction Taken",
-        Section_E1: "Corrective Action",
-        Section_E2: "Conclusion Review"
+        section_a: "General Info",
+        section_b1: "Chronology",
+        section_b2: "Cost Impact",
+        section_c: "Root Cause (5Why)",
+        section_d: "Correction Taken",
+        section_e1: "Corrective Action",
+        section_e2: "Conclusion Review"
       };
 
       const currentCar = carList[currentIndex];
@@ -293,7 +299,7 @@
           <div className="content">
             <h3>{sectionLabels[section]}</h3>
             {currentData[section]?.length > 0 ? (
-              section === "Section_C" ? (
+              section === "section_c" ? (
                 <table>
                   <colgroup>
                     <col style={{ width: "9%" }} />
@@ -372,5 +378,4 @@
   </script>
 </body>
 </html>
-
 
