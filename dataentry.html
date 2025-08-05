@@ -82,12 +82,12 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 800px;
+      min-width: 1000px;
     }
     th, td {
       border: 1px solid #ddd;
       padding: 0.75rem;
-      text-align: left;
+      text-align: center;
       font-size: 0.95rem;
       color: #000;
     }
@@ -102,10 +102,6 @@
       cursor: pointer;
     }
     .delete-btn { background-color: red; }
-    .section-buttons button {
-      margin: 2px;
-      font-size: 0.8rem;
-    }
     footer {
       background-color: #0a2540;
       color: white;
@@ -143,7 +139,13 @@
       <tr>
         <th>CAR ID</th>
         <th>Submitted</th>
-        <th>Sections</th>
+        <th>Section A</th>
+        <th>Section B1</th>
+        <th>Section B2</th>
+        <th>Section C</th>
+        <th>Section D</th>
+        <th>Section E1</th>
+        <th>Section E2</th>
         <th>🗑️</th>
       </tr>
     </thead>
@@ -192,22 +194,18 @@ function renderRows(rows) {
     submittedTd.appendChild(badge);
     tr.appendChild(submittedTd);
 
-    const sectionsTd = document.createElement("td");
-    const sectionNames = ["section_a","section_b1","section_b2","section_c","section_d","section_e1","section_e2"];
-    const div = document.createElement("div");
-    div.className = "section-buttons";
-    div.style.display = "flex";
-    div.style.flexWrap = "wrap";
-    div.style.gap = "4px";
-    sectionNames.forEach(s => {
+    const sections = ["section_a", "section_b1", "section_b2", "section_c", "section_d", "section_e1", "section_e2"];
+    sections.forEach(section => {
+      const td = document.createElement("td");
       const btn = document.createElement("button");
       btn.className = "view-btn";
-      btn.textContent = s.replace("section_", "View ").toUpperCase();
-      btn.onclick = () => window.location.href = `section.html?car_id=${row.car_id}&section=${s}`;
-      div.appendChild(btn);
+      btn.textContent = section.replace("section_", "View ").toUpperCase();
+      btn.onclick = () => {
+        window.location.href = `section.html?car_id=${row.car_id}&section=${section}`;
+      };
+      td.appendChild(btn);
+      tr.appendChild(td);
     });
-    sectionsTd.appendChild(div);
-    tr.appendChild(sectionsTd);
 
     const delTd = document.createElement("td");
     const delBtn = document.createElement("button");
@@ -254,4 +252,5 @@ window.logout = async function () {
 </script>
 </body>
 </html>
+
 
