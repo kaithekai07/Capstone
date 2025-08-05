@@ -130,29 +130,40 @@
   const bar = document.querySelector('.progress-bar');
   let width = 0;
 
-  async function waitForFinalProcessing() {
-    try {
-      const carId = localStorage.getItem("car_id");
-      const res = await fetch(`https://capstone-backend-128c.onrender.com/submit-car-status/${carId}`);
-      const data = await res.json();
+  async function checkAllSubmitted() {
+    const submittedCars = JSON.parse(localStorage.getItem("submittedCars") || "[]");
+    if (!submittedCars.length) {
+      window.location.href = "dataentry.html";
+      return;
+    }
 
-      // Simulate full progress visually
-      const interval = setInterval(() => {
-        if (width >= 100) {
+    const interval = setInterval(async () => {
+      width = Math.min(width + 2, 100);
+      bar.style.width = width + "%";
+
+      try {
+        const results = await Promise.all(
+          submittedCars.map(async (carId) => {
+            const res = await fetch(`https://capstone-backend-128c.onrender.com/submit-car-status/${carId}`);
+            const json = await res.json();
+            return json.submitted === true;
+          })
+        );
+
+        const allSubmitted = results.every(Boolean);
+        if (width >= 100 || allSubmitted) {
           clearInterval(interval);
           window.location.href = "dataentry.html";
-        } else {
-          width += 2;
-          bar.style.width = width + "%";
         }
-      }, 100);  // 100ms x 50 = 5s
-    } catch (err) {
-      alert("❌ Error checking processing status.");
-    }
+      } catch (e) {
+        console.error("Error polling submission status", e);
+      }
+    }, 100); // ~5s total
   }
 
-  waitForFinalProcessing();
+  checkAllSubmitted();
 </script>
+
 
 </body>
 </html>
