@@ -196,6 +196,9 @@ function renderRows(rows) {
     const sectionNames = ["section_a","section_b1","section_b2","section_c","section_d","section_e1","section_e2"];
     const div = document.createElement("div");
     div.className = "section-buttons";
+    div.style.display = "flex";
+    div.style.flexWrap = "wrap";
+    div.style.gap = "4px";
     sectionNames.forEach(s => {
       const btn = document.createElement("button");
       btn.className = "view-btn";
@@ -251,3 +254,4 @@ window.logout = async function () {
 </script>
 </body>
 </html>
+
