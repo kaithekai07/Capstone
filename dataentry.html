@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CAR Reports | Safesight AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -107,6 +107,18 @@
       color: white;
       text-align: center;
       padding: 2rem;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      font-weight: bold;
+      z-index: 9999;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -240,17 +252,35 @@ addRowBtn.addEventListener("click", async () => {
   };
   await supabase.from("car_reports").insert(newRow);
   fetchData();
+  showToast(`✅ New CAR ${newId} created!`);
 });
-
-searchInput.addEventListener("input", applyFilters);
-fetchData();
 
 window.logout = async function () {
   await supabase.auth.signOut();
   window.location.href = "index.html";
 };
+
+// ✅ Handle success messages from thankyou.html
+const submitted = JSON.parse(localStorage.getItem("submittedCars") || "[]");
+if (submitted.length > 0) {
+  submitted.forEach(id => {
+    showToast(`✅ CAR ${id} successfully submitted!`);
+  });
+  localStorage.removeItem("submittedCars");
+}
+
+// ✅ Toast Notification
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+searchInput.addEventListener("input", applyFilters);
+fetchData();
 </script>
 </body>
 </html>
-
 
