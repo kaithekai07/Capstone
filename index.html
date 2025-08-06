@@ -34,26 +34,28 @@
     }
 
     .hero {
-      position: relative;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      color: white;
-    }
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: white;
+    border: none; /* Remove any outline from the parent */
+  }
 
-.hero-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: blur(6px) brightness(0.6);
-  z-index: 0;
-  border: none;  /* Add this to remove the white outline */
-}
+    .hero-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(6px) brightness(0.6);
+    z-index: 0;
+    border: none; /* Remove outline from the video */
+  }
+
 
     .hero-overlay {
       position: relative;
